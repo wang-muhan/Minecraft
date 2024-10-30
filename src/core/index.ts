@@ -12,7 +12,7 @@ export default class Core {
 
   camera: THREE.PerspectiveCamera
   scene: THREE.Scene
-  renderer: THREE.Renderer
+  renderer: THREE.WebGLRenderer
 
   initCamera = () => {
     this.camera.fov = 50
