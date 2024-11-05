@@ -1,22 +1,7 @@
 import * as THREE from 'three'
 import Block from '../mesh/block'
 import Noise from '../noise'
-
-enum BlockType {
-  grass = 0,
-  sand = 1,
-  tree = 2,
-  leaf = 3,
-  dirt = 4,
-  stone = 5,
-  coal = 6,
-  wood = 7,
-  diamond = 8,
-  quartz = 9,
-  glass = 10,
-  bedrock = 11,
-  water = 12
-}
+import { BlockType } from '../config'
 
 const matrix = new THREE.Matrix4()
 const noise = new Noise()
@@ -58,6 +43,7 @@ onmessage = (
 
   const maxCount = (distance * chunkSize * 2 + chunkSize) ** 2 + 500
 
+  // initialize blocks on first run
   if (isFirstRun) {
     for (let i = 0; i < blocksCount.length; i++) {
       let block = new THREE.InstancedMesh(
@@ -67,7 +53,6 @@ onmessage = (
       )
       blocks.push(block)
     }
-
     isFirstRun = false
   }
 
@@ -93,11 +78,14 @@ onmessage = (
         z < chunkSize * distance + chunkSize + chunkSize * chunk.y;
         z++
     ) {
+
+      // horizontal plane is at y = 30
       const y = 30
+
+      // calculate block's y position offset based on noise
       const yOffset = Math.floor(
           noise.get(x / noise.gap, z / noise.gap, noise.seed) * noise.amp
       )
-
       matrix.setPosition(x, y + yOffset, z)
 
       const stoneOffset =
@@ -108,6 +96,7 @@ onmessage = (
           noise.get(x / noise.coalGap, z / noise.coalGap, noise.coalSeed) *
           noise.coalAmp
 
+      // set stones and coal
       if (stoneOffset > noise.stoneThreshold) {
         if (coalOffset > noise.coalThreshold) {
           // coal
@@ -124,7 +113,10 @@ onmessage = (
               matrix
           )
         }
-      } else {
+      }
+
+      // set grass, sand and water
+      else {
         if (yOffset < -3) {
           // sand
           idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.sand])
@@ -150,15 +142,15 @@ onmessage = (
         }
       }
 
-      // tree
+      // generate trees
       const treeOffset =
           noise.get(x / noise.treeGap, z / noise.treeGap, noise.treeSeed) *
           noise.treeAmp
 
       if (
           treeOffset > noise.treeThreshold &&
-          yOffset >= -3 &&
-          stoneOffset < noise.stoneThreshold
+          yOffset >= -3 && // not in water or sand
+          stoneOffset < noise.stoneThreshold // not on stones
       ) {
         for (let i = 1; i <= noise.treeHeight; i++) {
           idMap.set(`${x}_${y + yOffset + i}_${z}`, blocksCount[BlockType.tree])
@@ -184,6 +176,8 @@ onmessage = (
                       (z + k) / noise.leafGap,
                       noise.leafSeed
                   ) * noise.leafAmp
+
+              // add leaf if noise is greater than threshold
               if (leafOffset > noise.leafThreshold) {
                 idMap.set(
                     `${x + i}_${y + yOffset + noise.treeHeight + j}_${z + k}`,
@@ -207,6 +201,8 @@ onmessage = (
   }
 
   for (const block of customBlocks) {
+
+    // if inside current view range
     if (
         block.x > -chunkSize * distance + chunkSize * chunk.x &&
         block.x < chunkSize * distance + chunkSize + chunkSize * chunk.x &&
@@ -218,7 +214,7 @@ onmessage = (
         matrix.setPosition(block.x, block.y, block.z)
         blocks[block.type].setMatrixAt(blocksCount[block.type]++, matrix)
       } else {
-        // removed blocks
+        // not placed, removed blocks
         const id = idMap.get(`${block.x}_${block.y}_${block.z}`)
 
         blocks[block.type].setMatrixAt(
@@ -248,5 +244,4 @@ onmessage = (
 
   const arrays = blocks.map(block => block.instanceMatrix.array)
   postMessage({ idMap, arrays, blocksCount })
-  // console.log(performance.now() - p1)
 }

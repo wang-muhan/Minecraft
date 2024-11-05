@@ -28,14 +28,6 @@ const control = new Control(scene, camera, player, terrain, audio)
 
 const ui = new UI(terrain, control)
 
-// const composer = new POSTPROCESSING.EffectComposer(renderer)
-//
-// const ssrEffect = new SSREffect(scene, camera)
-//
-// const ssrPass = new POSTPROCESSING.EffectPass(camera, ssrEffect)
-
-// composer.addPass(ssrPass)
-
 const composer = new EffectComposer(renderer)
 // const reflector = new Reflector(renderer, camera)
 const ssrpass = new SSRPass({renderer: renderer, scene: scene, camera: camera, groundReflector:null, selects:null})
@@ -43,14 +35,12 @@ composer.addPass(ssrpass)
 
 // animation
 ;(function animate() {
-  // let p1 = performance.now()
   requestAnimationFrame(animate)
 
   control.update()
   terrain.update()
   ui.update()
 
-  // renderer.render(scene, camera)
-  // console.log(performance.now()-p1)
-  composer.render()
+  renderer.render(scene, camera)
+  // composer.render()
 })()

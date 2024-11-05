@@ -80,7 +80,7 @@ export default class Control {
   raycaster: THREE.Raycaster
   far: number
 
-  holdingBlock = BlockType.grass
+  holdingBlock = BlockType.tnt
   holdingBlocks = [
     BlockType.grass,
     BlockType.stone,
@@ -280,7 +280,7 @@ export default class Control {
     e.preventDefault()
     // let p1 = performance.now()
     this.raycaster.setFromCamera({ x: 0, y: 0 }, this.camera)
-    const block = this.raycaster.intersectObjects(this.terrain.blocks)[0]
+    const block = this.raycaster.intersectObjects(this.terrain.overworld_blocks)[0]
     const matrix = new THREE.Matrix4()
 
     switch (e.button) {
@@ -413,7 +413,7 @@ export default class Control {
               normal.y + position.y,
               normal.z + position.z
             )
-            this.terrain.blocks[this.holdingBlock].setMatrixAt(
+            this.terrain.overworld_blocks[this.holdingBlock].setMatrixAt(
               this.terrain.getCount(this.holdingBlock),
               matrix
             )
@@ -423,7 +423,7 @@ export default class Control {
             this.audio.playSound(this.holdingBlock)
 
             // update
-            this.terrain.blocks[this.holdingBlock].instanceMatrix.needsUpdate =
+            this.terrain.overworld_blocks[this.holdingBlock].instanceMatrix.needsUpdate =
               true
 
             // add to custom blocks

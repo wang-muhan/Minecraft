@@ -1,26 +1,14 @@
 import * as THREE from 'three'
-import Materials, { MaterialType } from './mesh/materials'
+import Materials from './mesh/materials'
 import Block from './mesh/block'
 import Highlight from './highlight'
 import Noise from './noise'
 
+import { BlockType, MaterialType, overworld_blocksFactor, nether_blocksFactor } from './config'
+export { BlockType , MaterialType, overworld_blocksFactor, nether_blocksFactor } from './config'
+
 import Generate from './worker/generate?worker'
 
-export enum BlockType {
-  grass = 0,
-  sand = 1,
-  tree = 2,
-  leaf = 3,
-  dirt = 4,
-  stone = 5,
-  coal = 6,
-  wood = 7,
-  diamond = 8,
-  quartz = 9,
-  glass = 10,
-  bedrock = 11,
-  water = 12,
-}
 export default class Terrain {
   constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera) {
     this.scene = scene
@@ -28,9 +16,22 @@ export default class Terrain {
     this.maxCount =
         (this.distance * this.chunkSize * 2 + this.chunkSize) ** 2 + 500
     this.highlight = new Highlight(scene, camera, this)
-    this.scene.add(this.cloud)
 
-    // generate worker callback handler
+    this.overworld.add(this.cloud)
+
+    this.current_blocks = this.overworld_blocks
+    this.current_blocksCount = this.overworld_blocksCount
+    this.current_blocksFactor = this.overworld_blocksFactor
+    this.current_world = this.overworld
+
+    // this.current_blocks = this.nether_blocks
+    // this.current_blocksCount = this.nether_blocksCount
+    // this.current_blocksFactor = this.nether_blocksFactor
+    // this.current_world = this.nether
+
+    this.scene.add(this.current_world)
+
+    // generate worker callback handler (set the idMap, blocksCount, and instanceMatrix)
     this.generateWorker.onmessage = (
         msg: MessageEvent<{
           idMap: Map<string, number>
@@ -40,20 +41,33 @@ export default class Terrain {
     ) => {
       this.resetBlocks()
       this.idMap = msg.data.idMap
-      this.blocksCount = msg.data.blocksCount
+      this.overworld_blocksCount = msg.data.blocksCount
 
       for (let i = 0; i < msg.data.arrays.length; i++) {
-        this.blocks[i].instanceMatrix = new THREE.InstancedBufferAttribute(
-            (this.blocks[i].instanceMatrix.array = msg.data.arrays[i]),
+        this.overworld_blocks[i].instanceMatrix = new THREE.InstancedBufferAttribute(
+            (this.overworld_blocks[i].instanceMatrix.array = msg.data.arrays[i]),
             16
         )
       }
+      for (const block of this.overworld_blocks) {
+        block.instanceMatrix.needsUpdate = true
+      }
 
-      for (const block of this.blocks) {
+      // nether part
+      this.nether_blocksCount = msg.data.blocksCount
+
+      for (let i = 0; i < msg.data.arrays.length; i++) {
+        this.nether_blocks[i].instanceMatrix = new THREE.InstancedBufferAttribute(
+            (this.nether_blocks[i].instanceMatrix.array = msg.data.arrays[i]),
+            16
+        )
+      }
+      for (const block of this.nether_blocks) {
         block.instanceMatrix.needsUpdate = true
       }
     }
   }
+
   // core properties
   scene: THREE.Scene
   camera: THREE.PerspectiveCamera
@@ -68,30 +82,24 @@ export default class Terrain {
 
   // materials
   materials = new Materials()
-  materialType = [
-    MaterialType.grass,
-    MaterialType.sand,
-    MaterialType.tree,
-    MaterialType.leaf,
-    MaterialType.dirt,
-    MaterialType.stone,
-    MaterialType.coal,
-    MaterialType.wood,
-    MaterialType.diamond,
-    MaterialType.quartz,
-    MaterialType.glass,
-    MaterialType.bedrock,
-    MaterialType.water
-  ]
+  materialType = Object.keys(MaterialType).map((key) => MaterialType[key])
 
-  // other properties
-  blocks: THREE.InstancedMesh[] = []
-  blocksCount: number[] = []
-  blocksFactor = [1, 0.2, 0.1, 0.7, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.7]
+  // world properties
+  overworld_blocks: THREE.InstancedMesh[] = []
+  overworld_blocksCount: number[] = []
+  overworld_blocksFactor = overworld_blocksFactor
+  nether_blocks: THREE.InstancedMesh[] = []
+  nether_blocksCount: number[] = []
+  nether_blocksFactor = nether_blocksFactor
+  current_blocks: THREE.InstancedMesh[] = []
+  current_blocksCount: number[] = []
+  current_blocksFactor: number[]
+
 
   customBlocks: Block[] = []
   highlight: Highlight
 
+  // idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType])
   idMap = new Map<string, number>()
   generateWorker = new Generate()
 
@@ -105,53 +113,89 @@ export default class Terrain {
       }),
       1000
   )
+
+  //world groups
+  overworld = new THREE.Group()
+  nether = new THREE.Group()
+  current_world: THREE.Group
+
   cloudCount = 0
   cloudGap = 5
 
   getCount = (type: BlockType) => {
-    return this.blocksCount[type]
+    return this.overworld_blocksCount[type]
   }
 
   setCount = (type: BlockType) => {
-    this.blocksCount[type] = this.blocksCount[type] + 1
+    this.overworld_blocksCount[type] = this.overworld_blocksCount[type] + 1
   }
 
+  // initialize instance meshes of each type, blocksCount set to 0
   initBlocks = () => {
-    // reset
-    for (const block of this.blocks) {
+
+    const geometry = new THREE.BoxGeometry()
+
+    // reset all blocks in overworld
+    for (const block of this.overworld_blocks) {
       this.scene.remove(block)
     }
-    this.blocks = []
-
-    // create instance meshes
-    const geometry = new THREE.BoxGeometry()
+    this.overworld_blocks = []
 
     for (let i = 0; i < this.materialType.length; i++) {
       let block = new THREE.InstancedMesh(
           geometry,
           this.materials.get(this.materialType[i]),
-          this.maxCount * this.blocksFactor[i]
+          this.maxCount * this.overworld_blocksFactor[i]
       )
       block.name = BlockType[i]
-      this.blocks.push(block)
-      this.scene.add(block)
+      this.overworld_blocks.push(block)
+      this.overworld.add(block)
     }
 
-    this.blocksCount = new Array(this.materialType.length).fill(0)
+    this.overworld_blocksCount = new Array(this.materialType.length).fill(0)
+
+    // reset all blocks in nether, change the order of materials
+    for (const block of this.nether_blocks) {
+      this.scene.remove(block)
+    }
+    this.nether_blocks = []
+
+    for (let i = 0; i < this.materialType.length; i++) {
+      let block = new THREE.InstancedMesh(
+          geometry,
+          this.materials.get(this.materialType[this.materialType.length-i]),
+          this.maxCount * this.nether_blocksFactor[this.materialType.length-i]
+      )
+      block.name = BlockType[i]
+      this.nether_blocks.push(block)
+      this.nether.add(block)
+    }
+
+    this.nether_blocksCount = new Array(this.materialType.length).fill(0)
   }
 
+  // reset count and instance matrix of each block
   resetBlocks = () => {
-    // reest count and instance matrix
-    for (let i = 0; i < this.blocks.length; i++) {
-      this.blocks[i].instanceMatrix = new THREE.InstancedBufferAttribute(
-          new Float32Array(this.maxCount * this.blocksFactor[i] * 16),
+    for (let i = 0; i < this.overworld_blocks.length; i++) {
+      this.overworld_blocks[i].instanceMatrix = new THREE.InstancedBufferAttribute(
+          new Float32Array(this.maxCount * this.overworld_blocksFactor[i] * 16),
+          16
+      )
+    }
+
+    for (let i = 0; i < this.nether_blocks.length; i++) {
+      this.nether_blocks[i].instanceMatrix = new THREE.InstancedBufferAttribute(
+          new Float32Array(this.maxCount * this.nether_blocksFactor[i] * 16),
           16
       )
     }
   }
 
+  // generate terrain from scratch
   generate = () => {
-    this.blocksCount = new Array(this.blocks.length).fill(0)
+    this.overworld_blocksCount = new Array(this.overworld_blocks.length).fill(0)
+    this.nether_blocksCount = new Array(this.nether_blocks.length).fill(0)
+
     // post work to generate worker
     this.generateWorker.postMessage({
       distance: this.distance,
@@ -161,13 +205,13 @@ export default class Terrain {
       stoneSeed: this.noise.stoneSeed,
       coalSeed: this.noise.coalSeed,
       idMap: new Map<string, number>(),
-      blocksFactor: this.blocksFactor,
-      blocksCount: this.blocksCount,
+      blocksFactor: this.overworld_blocksFactor,
+      blocksCount: this.overworld_blocksCount,
       customBlocks: this.customBlocks,
       chunkSize: this.chunkSize
     })
 
-    // cloud
+    // cloud(only for overworld)
 
     if (this.cloudGap++ > 5) {
       this.cloudGap = 0
@@ -206,7 +250,7 @@ export default class Terrain {
     }
   }
 
-  // generate adjacent blocks after removing a block (vertical infinity world)
+  // generate adjacent blocks after removing a block (vertical infinity world), keep the type of the block
   generateAdjacentBlocks = (position: THREE.Vector3) => {
     const { x, y, z } = position
     const noise = this.noise
@@ -214,6 +258,7 @@ export default class Terrain {
         noise.get(x / noise.gap, z / noise.gap, noise.seed) * noise.amp
     )
 
+    // do not generate blocks above the existing blocks
     if (y > 30 + yOffset) {
       return
     }
@@ -226,7 +271,9 @@ export default class Terrain {
 
     if (stoneOffset > noise.stoneThreshold || y < 23) {
       type = BlockType.stone
-    } else {
+    }
+
+    else {
       if (yOffset < -3) {
         type = BlockType.sand
       } else {
@@ -241,12 +288,14 @@ export default class Terrain {
     this.buildBlock(new THREE.Vector3(x, y, z - 1), type)
     this.buildBlock(new THREE.Vector3(x, y, z + 1), type)
 
-    this.blocks[type].instanceMatrix.needsUpdate = true
+    this.overworld_blocks[type].instanceMatrix.needsUpdate = true
   }
 
+  //build a custom block at a specific position
   buildBlock = (position: THREE.Vector3, type: BlockType) => {
     const noise = this.noise
-    // check if it's natural terrain
+
+    // Do not generate at natural terrain
     const yOffset = Math.floor(
         noise.get(position.x / noise.gap, position.z / noise.gap, noise.seed) *
         noise.amp
@@ -257,7 +306,7 @@ export default class Terrain {
 
     position.y === 0 && (type = BlockType.bedrock)
 
-    // check custom blocks
+    // Do not generate at custom blocks
     for (const block of this.customBlocks) {
       if (
           block.x === position.x &&
@@ -268,18 +317,20 @@ export default class Terrain {
       }
     }
 
-    // build block
+    // add new placed custom block
     this.customBlocks.push(
         new Block(position.x, position.y, position.z, type, true)
     )
 
+    // update this.overworld_blocks
     const matrix = new THREE.Matrix4()
     matrix.setPosition(position)
-    this.blocks[type].setMatrixAt(this.getCount(type), matrix)
-    this.blocks[type].instanceMatrix.needsUpdate = true
+    this.overworld_blocks[type].setMatrixAt(this.getCount(type), matrix)
+    this.overworld_blocks[type].instanceMatrix.needsUpdate = true
     this.setCount(type)
   }
 
+  // update the terrain
   update = () => {
     this.chunk.set(
         Math.floor(this.camera.position.x / this.chunkSize),
