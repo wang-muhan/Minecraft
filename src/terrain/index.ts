@@ -4,8 +4,8 @@ import Block from './mesh/block'
 import Highlight from './highlight'
 import Noise from './noise'
 
-import { BlockType, MaterialType, overworld_blocksFactor, nether_blocksFactor } from './config'
-export { BlockType , MaterialType, overworld_blocksFactor, nether_blocksFactor } from './config'
+import { BlockType, MaterialType, WorldType, overworld_blocksFactor, nether_blocksFactor } from './config'
+export { BlockType , MaterialType, WorldType, overworld_blocksFactor, nether_blocksFactor } from './config'
 
 import Generate from './worker/generate?worker'
 
@@ -23,11 +23,13 @@ export default class Terrain {
     this.current_blocksCount = this.overworld_blocksCount
     this.current_blocksFactor = this.overworld_blocksFactor
     this.current_world = this.overworld
+    this.worldtype = WorldType.overworld
 
     // this.current_blocks = this.nether_blocks
     // this.current_blocksCount = this.nether_blocksCount
     // this.current_blocksFactor = this.nether_blocksFactor
     // this.current_world = this.nether
+    // this.worldtype = WorldType.nether
 
     this.scene.add(this.current_world)
 
@@ -118,6 +120,7 @@ export default class Terrain {
   overworld = new THREE.Group()
   nether = new THREE.Group()
   current_world: THREE.Group
+  worldtype: WorldType
 
   cloudCount = 0
   cloudGap = 5
@@ -163,8 +166,8 @@ export default class Terrain {
     for (let i = 0; i < this.materialType.length; i++) {
       let block = new THREE.InstancedMesh(
           geometry,
-          this.materials.get(this.materialType[this.materialType.length-i]),
-          this.maxCount * this.nether_blocksFactor[this.materialType.length-i]
+          this.materials.get(this.materialType[i]),
+          this.maxCount * this.nether_blocksFactor[i]
       )
       block.name = BlockType[i]
       this.nether_blocks.push(block)
@@ -208,8 +211,24 @@ export default class Terrain {
       blocksFactor: this.overworld_blocksFactor,
       blocksCount: this.overworld_blocksCount,
       customBlocks: this.customBlocks,
-      chunkSize: this.chunkSize
+      chunkSize: this.chunkSize,
+      worldType: WorldType.overworld
     })
+
+    // this.generateWorker.postMessage({
+    //   distance: this.distance,
+    //   chunk: this.chunk,
+    //   noiseSeed: this.noise.seed,
+    //   treeSeed: this.noise.treeSeed,
+    //   stoneSeed: this.noise.stoneSeed,
+    //   coalSeed: this.noise.coalSeed,
+    //   idMap: new Map<string, number>(),
+    //   blocksFactor: this.nether_blocksFactor,
+    //   blocksCount: this.nether_blocksCount,
+    //   customBlocks: this.customBlocks,
+    //   chunkSize: this.chunkSize,
+    //   worldtype: this.worldtype
+    // })
 
     // cloud(only for overworld)
 

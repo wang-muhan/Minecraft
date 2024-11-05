@@ -89,6 +89,8 @@ export default class Materials {
     redstone_ore: new THREE.MeshStandardMaterial({ map: textures['redstone_block'] }),
 
     obsidian: new THREE.MeshStandardMaterial({ map: textures['obsidian'] }),
+
+    magma: new THREE.MeshStandardMaterial({ map: textures['magma'] }),
   }
 
   get = (
