@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import { Water } from 'three/examples/jsm/objects/Water'
+
 import Materials from './mesh/materials'
 import Block from './mesh/block'
 import Highlight from './highlight'
@@ -18,6 +20,12 @@ export default class Terrain {
     this.highlight = new Highlight(scene, camera, this)
 
     this.overworld.add(this.cloud)
+
+    this.water.rotation.x = -Math.PI / 2
+    this.water.material.transparent = true
+    this.water.material.side = THREE.DoubleSide
+    this.water.position.setY(29)
+    this.overworld.add(this.water);
 
     this.current_blocks = this.overworld_blocks
     this.current_blocksCount = this.overworld_blocksCount
@@ -115,6 +123,25 @@ export default class Terrain {
       }),
       1000
   )
+
+  //water
+  waterGeometry = new THREE.PlaneGeometry(1000, 1000);
+  water = new Water(this.waterGeometry, {
+    textureWidth: 512,
+    textureHeight: 512,
+    waterNormals: new THREE.TextureLoader().load(
+        'src/static/water.png',
+        function (texture) {
+          texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        }
+    ),
+    // sunDirection: new THREE.Vector3(),
+    // sunColor: 0xffffff,
+    waterColor: 0x0000ff,
+    // distortionScale: 3.7,
+    fog: false,
+    alpha: 0.7
+  });
 
   //world groups
   overworld = new THREE.Group()
@@ -367,5 +394,7 @@ export default class Terrain {
     this.previousChunk.copy(this.chunk)
 
     this.highlight.update()
+
+    this.water.material.uniforms['time'].value += 1.0 / 60.0
   }
 }
