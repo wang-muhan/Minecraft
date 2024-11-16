@@ -23,15 +23,15 @@ const renderer = core.renderer
 const player = new Player()
 const audio = new Audio(camera)
 
-const terrain = new Terrain(scene, camera)
+const terrain = new Terrain(scene, camera, renderer)
 const control = new Control(scene, camera, player, terrain, audio)
 
 const ui = new UI(terrain, control)
 
-const composer = new EffectComposer(renderer)
+// const composer = new EffectComposer(renderer)
 // const reflector = new Reflector(renderer, camera)
-const ssrpass = new SSRPass({renderer: renderer, scene: scene, camera: camera, groundReflector:null, selects:null})
-composer.addPass(ssrpass)
+// const ssrpass = new SSRPass({renderer: renderer, scene: scene, camera: camera, groundReflector:null, selects:[terrain.water]})
+// composer.addPass(ssrpass)
 
 // animation
 ;(function animate() {
