@@ -13,17 +13,41 @@ export {BlockType, MaterialType, WorldType, overworld_blocksFactor, nether_block
 
 import Generate from './worker/generate?worker'
 
+function throttle(func: Function, limit: number) {
+    let lastFunc: number;
+    let lastRan: number;
+    return function(this: any, ...args: any[]) {
+        const context = this;
+        if (!lastRan) {
+            func.apply(context, args);
+            lastRan = Date.now();
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = window.setTimeout(function() {
+                if ((Date.now() - lastRan) >= limit) {
+                    func.apply(context, args);
+                    lastRan = Date.now();
+                }
+            }, limit - (Date.now() - lastRan));
+        }
+    }
+}
+
 export default class Terrain {
     constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
         this.scene = scene
         this.camera = camera
         this.renderer = renderer
 
-        console.log(this.waterGeometry.attributes.uv.array)
         this.waterSimulation.setRenderer(renderer)
         this.waterSimulation.setWater(this.water)
         this.waterSimulation.setViewer(camera)
-        this.waterSimulation.setMesh(this.testMesh)
+        // document.addEventListener('mousemove', throttle((event) => this.waterSimulation.onMouseMove(event), 1000))
+        const canvas = document.querySelector('canvas')
+        document.addEventListener('mousemove', throttle((event) => this.waterSimulation.onMouseMove(event), 1000))
+
+        // this.waterSimulation.setMesh(this.testMesh)
+
 
         this.maxCount =
             (this.distance * this.chunkSize * 2 + this.chunkSize) ** 2 + 500
@@ -36,13 +60,18 @@ export default class Terrain {
         this.water.material.side = THREE.DoubleSide
         this.water.position.setY(31)
 
-        this.testMesh.rotation.x = -Math.PI / 2
-        this.testMesh.position.setY(33)
-        this.scene.add(this.testMesh)
+        this.water_ = this.water.clone()
+        this.water_.position.setX(150)
+        this.water_.position.setZ(150)
+
+        // this.testMesh.rotation.x = -Math.PI / 2
+        // this.testMesh.position.setY(33)
+        // this.scene.add(this.testMesh)
 
         this.water.position.setX(50)
         this.water.position.setZ(50)
         this.overworld.add(this.water);
+        this.overworld.add(this.water_);
 
         this.current_blocks = this.overworld_blocks
         this.current_blocksCount = this.overworld_blocksCount
@@ -99,6 +128,7 @@ export default class Terrain {
     scene: THREE.Scene
     camera: THREE.PerspectiveCamera
     renderer: THREE.WebGLRenderer
+    raycaster = new THREE.Raycaster()
     distance = 3
     chunkSize = 24
 
@@ -156,8 +186,8 @@ export default class Terrain {
 
     waterGeometry = new THREE.PlaneGeometry(200, 200);
     water = new Water(this.waterGeometry, {
-        textureWidth: 1024,
-        textureHeight: 1024,
+        textureWidth: 256,
+        textureHeight: 256,
         waterNormals: new THREE.TextureLoader().load(
             'src/static/img.png',
             function (texture) {
@@ -166,12 +196,13 @@ export default class Terrain {
         ),
         // sunDirection: new THREE.Vector3(),
         // sunColor: 0xffffff,
-        waterColor: 0x4169E1,
+        waterColor: 0x0000ff,
         // distortionScale: 3.7,
         fog: false,
         side: THREE.DoubleSide,
-        alpha: 0.5
+        alpha: 0.7
     });
+    water_: Water
 
     waterSimulation = new WaterSimulation()
 
@@ -427,13 +458,21 @@ export default class Terrain {
 
         // this.water.material.uniforms['time'].value += 1.0 / 240.0
         Promise.all([this.waterSimulation.loaded]).then(() => {
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 1; i++) {
                 this.waterSimulation.addDrop(
-                    Math.random() * 2 - 1,
-                    Math.random() * 2 - 1,
-                    0.03,
-                    i % 2 === 0 ? 0.02 : -0.02
+                    Math.random() * 2 - 0.75,
+                    Math.random() * 2 - 0.75,
+                    0.01,
+                    i % 2 === 0 ? 2.0 : -2.0
                 );
+            }
+
+            this.raycaster.setFromCamera({ x: 0, y: 0 }, this.camera)
+            const intersects = this.raycaster.intersectObject(this.water)
+            for (const intersect of intersects) {
+                console.log(intersect.point)
+                this.waterSimulation.addDrop((intersect.point.x / 100) * 2 - 1, (intersect.point.z / 100) * 2 - 1, 0.01, 1.0)
+                // this.waterSimulation.addDrop(-0.9, -0.9, 0.01, 1.0)
             }
             this.waterSimulation.update()
         })

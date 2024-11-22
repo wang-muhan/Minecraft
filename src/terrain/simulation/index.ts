@@ -43,7 +43,7 @@ export default class WaterSimulation {
     constructor() {
         this._camera = new THREE.OrthographicCamera(0, 1, 1, 0, 0, 2000);
         this._geometry = new THREE.PlaneGeometry(2, 2);
-        this._texture_resolution = 1024;
+        this._texture_resolution = 256;
         this._rendertargetA = new THREE.WebGLRenderTarget(this._texture_resolution, this._texture_resolution, {type: THREE.FloatType});
         this._rendertargetB = new THREE.WebGLRenderTarget(this._texture_resolution, this._texture_resolution, {type: THREE.FloatType});
         this.rendertarget = this._rendertargetA;
@@ -174,11 +174,12 @@ export default class WaterSimulation {
         this._water.material.needsUpdate = true;
 
         // set the meshs texture to the output texture
-        (this._mesh.material as THREE.MeshStandardMaterial).map = this.rendertargetoutput.texture;
-        this._mesh.material.needsUpdate = true;
+        // (this._mesh.material as THREE.MeshStandardMaterial).map = this.rendertargetoutput.texture;
+        // this._mesh.material.needsUpdate = true;
     }
 
     onMouseMove(event: MouseEvent): void {
+        //
         const canvas = this._renderer.domElement;
         const rect = canvas.getBoundingClientRect();
         const width = canvas.width
@@ -191,8 +192,11 @@ export default class WaterSimulation {
         const intersects = this.raycaster.intersectObject(this._water);
 
         for (const intersect of intersects) {
-            waterSimulation.addDrop(intersect.point.x, intersect.point.z, 0.03, 0.04);
+            console.log(intersect.point)
+            // this.addDrop(intersect.point.x / 100 , intersect.point.z / 100, 0.01, 1.0)
+            // this.addDrop(-0.9, -0.9, 0.01, 1.0)
         }
+
     }
 
 }
