@@ -7,7 +7,7 @@ varying vec2 coord;
 
 void main() {
   /* get vertex info */
-  vec4 info = texture2D(texture, coord);
+  vec4 info = texture2D(texture, fract(coord));
 
   /* output the normal */
   vec3 normal = vec3(info.b, sqrt(1.0 - dot(info.ba, info.ba)), info.a);

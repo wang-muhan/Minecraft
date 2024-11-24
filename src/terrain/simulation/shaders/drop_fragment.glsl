@@ -11,7 +11,7 @@ varying vec2 coord;
 
 void main() {
   /* Get vertex info */
-  vec4 info = texture2D(texture, coord);
+  vec4 info = texture2D(texture, fract(coord));
 
   /* Add the drop to the height */
   float drop = max(0.0, 1.0 - length(center * 0.5 + 0.5 - coord) / radius);

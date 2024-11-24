@@ -42,11 +42,6 @@ export default class Terrain {
         this.waterSimulation.setRenderer(renderer)
         this.waterSimulation.setWater(this.water)
         this.waterSimulation.setViewer(camera)
-        // document.addEventListener('mousemove', throttle((event) => this.waterSimulation.onMouseMove(event), 1000))
-        const canvas = document.querySelector('canvas')
-        document.addEventListener('mousemove', throttle((event) => this.waterSimulation.onMouseMove(event), 1000))
-
-        // this.waterSimulation.setMesh(this.testMesh)
 
 
         this.maxCount =
@@ -58,20 +53,51 @@ export default class Terrain {
         this.water.rotation.x = -Math.PI / 2
         this.water.material.transparent = true
         this.water.material.side = THREE.DoubleSide
-        this.water.position.setY(31)
+        this.water.position.setY(30)
 
-        this.water_ = this.water.clone()
-        this.water_.position.setX(150)
-        this.water_.position.setZ(150)
+        this.outerShape = new THREE.Shape();
+        this.outerShape.moveTo(-500, -500);  // 左下角
+        this.outerShape.lineTo(-500, 500);   // 左上角
+        this.outerShape.lineTo(500, 500);    // 右上角
+        this.outerShape.lineTo(500, -500);   // 右下角
+        this.outerShape.lineTo(-500, -500);  // 闭合路径
 
-        // this.testMesh.rotation.x = -Math.PI / 2
-        // this.testMesh.position.setY(33)
-        // this.scene.add(this.testMesh)
+        // 创建要移除的区域（孔洞）
+        const holePath = new THREE.Path();
+        holePath.moveTo(0, 0);          // 孔的左下角
+        holePath.lineTo(0, 100);        // 孔的左上角
+        holePath.lineTo(100, 100);      // 孔的右上角
+        holePath.lineTo(100, 0);        // 孔的右下角
+        holePath.lineTo(0, 0);          // 闭合路径
+
+        this.outerShape.holes.push(holePath)
+        this.waterGeometry_ = new THREE.ShapeGeometry(this.outerShape)
+        this.water_ = new Water(this.waterGeometry_, {
+            textureWidth: 256,
+            textureHeight: 256,
+            waterNormals: new THREE.TextureLoader().load(
+                'src/static/water.png',
+                function (texture) {
+                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                }
+            ),
+            // sunDirection: new THREE.Vector3(),
+            // sunColor: 0xffffff,
+            waterColor: 0x0000ff,
+            // distortionScale: 3.7,
+            fog: false,
+            side: THREE.DoubleSide,
+            alpha: 0.7
+        })
+
+        this.water_.rotation.x = -Math.PI / 2
+        this.water_.material.transparent = true
+        this.water_.position.set(0, 30, 100)
+        this.overworld.add(this.water_)
 
         this.water.position.setX(50)
         this.water.position.setZ(50)
-        this.overworld.add(this.water);
-        this.overworld.add(this.water_);
+        this.overworld.add(this.water)
 
         this.current_blocks = this.overworld_blocks
         this.current_blocksCount = this.overworld_blocksCount
@@ -121,6 +147,10 @@ export default class Terrain {
             for (const block of this.nether_blocks) {
                 block.instanceMatrix.needsUpdate = true
             }
+
+            // place the water
+            // this.water.position.setX(this.chunkSize * this.chunk.x)
+            // this.water.position.setZ(this.chunkSize * this.chunk.y)
         }
     }
 
@@ -173,7 +203,7 @@ export default class Terrain {
     )
 
     // water
-    testGeometry = new THREE.PlaneGeometry(500, 500)
+    testGeometry = new THREE.PlaneGeometry(1000, 1000)
     testMesh = new THREE.Mesh(
         this.testGeometry,
         new THREE.MeshStandardMaterial({
@@ -184,7 +214,14 @@ export default class Terrain {
         })
     )
 
-    waterGeometry = new THREE.PlaneGeometry(200, 200);
+    waterGeometry = new THREE.PlaneGeometry(100, 100);
+    // waterGeometry_ = new THREE.PlaneGeometry(1000, 1000);
+
+    // 创建外部形状（整个平面区域）
+    outerShape: THREE.Shape
+    // 创建几何体
+    waterGeometry_: THREE.ShapeGeometry
+
     water = new Water(this.waterGeometry, {
         textureWidth: 256,
         textureHeight: 256,
@@ -202,6 +239,7 @@ export default class Terrain {
         side: THREE.DoubleSide,
         alpha: 0.7
     });
+
     water_: Water
 
     waterSimulation = new WaterSimulation()
@@ -456,12 +494,13 @@ export default class Terrain {
 
         this.highlight.update()
 
-        // this.water.material.uniforms['time'].value += 1.0 / 240.0
+        this.water_.material.uniforms['time'].value += 1.0 / 240.0
+
         Promise.all([this.waterSimulation.loaded]).then(() => {
             for (let i = 0; i < 1; i++) {
                 this.waterSimulation.addDrop(
-                    Math.random() * 2 - 0.75,
-                    Math.random() * 2 - 0.75,
+                    (Math.random() - 0.5) * 1.5 ,
+                    (Math.random() - 0.5) * 1.5 ,
                     0.01,
                     i % 2 === 0 ? 2.0 : -2.0
                 );
@@ -470,9 +509,7 @@ export default class Terrain {
             this.raycaster.setFromCamera({ x: 0, y: 0 }, this.camera)
             const intersects = this.raycaster.intersectObject(this.water)
             for (const intersect of intersects) {
-                console.log(intersect.point)
                 this.waterSimulation.addDrop((intersect.point.x / 100) * 2 - 1, (intersect.point.z / 100) * 2 - 1, 0.01, 1.0)
-                // this.waterSimulation.addDrop(-0.9, -0.9, 0.01, 1.0)
             }
             this.waterSimulation.update()
         })

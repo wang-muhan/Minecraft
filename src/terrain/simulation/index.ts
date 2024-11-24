@@ -156,9 +156,9 @@ export default class WaterSimulation {
         this.output();
 
         const normalTexture = this.rendertargetoutput.texture;
-
-        normalTexture.wrapS = THREE.RepeatWrapping;
-        normalTexture.wrapT = THREE.RepeatWrapping;
+        //
+        // normalTexture.wrapS = THREE.RepeatWrapping;
+        // normalTexture.wrapT = THREE.RepeatWrapping;
 
         this._renderer.setRenderTarget(null);
 

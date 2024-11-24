@@ -303,12 +303,12 @@ onmessage = (
             stoneOffset < noise.stoneThreshold // not on stones
         ) {
           for (let i = 1; i <= noise.treeHeight; i++) {
-            idMap.set(`${x}_${y + yOffset + i}_${z}`, blocksCount[BlockType.tree])
+            idMap.set(`${x}_${y + yOffset + i}_${z}`, blocksCount[BlockType.nether_quartz_ore])
 
             matrix.setPosition(x, y + yOffset + i, z)
 
-            blocks[BlockType.tree].setMatrixAt(
-                blocksCount[BlockType.tree]++,
+            blocks[BlockType.nether_quartz_ore].setMatrixAt(
+                blocksCount[BlockType.nether_quartz_ore]++,
                 matrix
             )
           }

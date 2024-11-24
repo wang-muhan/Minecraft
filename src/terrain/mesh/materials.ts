@@ -91,6 +91,10 @@ export default class Materials {
     obsidian: new THREE.MeshStandardMaterial({ map: textures['obsidian'] }),
 
     magma: new THREE.MeshStandardMaterial({ map: textures['magma'] }),
+
+    netherreck: new THREE.MeshStandardMaterial({ map: textures['netherrack'] }),
+
+    nether_quartz_ore: new THREE.MeshStandardMaterial({ map: textures['nether_quartz_ore'] }),
   }
 
   get = (
