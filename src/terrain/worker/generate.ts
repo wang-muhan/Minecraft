@@ -233,66 +233,119 @@ onmessage = (
         const y = 30
 
         // calculate block's y position offset based on noise
-        const yOffset = Math.floor(
+        const yOffsetmean = Math.floor(
             noise.get(x / noise.gap, z / noise.gap, noise.seed) * noise.amp
         )
-        matrix.setPosition(x, y + yOffset, z)
+        const yOffsetstd = 1
 
-        const stoneOffset =
-            noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
-            noise.stoneAmp
+        for (let yOffset = yOffsetmean - yOffsetstd; yOffset <= yOffsetmean + yOffsetstd; yOffset++) {
+          matrix.setPosition(x, y + yOffset, z)
 
-        const coalOffset =
-            noise.get(x / noise.coalGap, z / noise.coalGap, noise.coalSeed) *
-            noise.coalAmp
+          const stoneOffset =
+              noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
+              noise.stoneAmp
 
-        // set stones and coal
-        if (stoneOffset > noise.stoneThreshold) {
-          if (coalOffset > noise.coalThreshold) {
-            // coal
-            idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.coal])
-            blocks[BlockType.obsidian].setMatrixAt(
-                blocksCount[BlockType.obsidian]++,
-                matrix
-            )
-          } else {
-            // stone
-            idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.stone])
-            blocks[BlockType.glowstone].setMatrixAt(
-                blocksCount[BlockType.glowstone]++,
-                matrix
-            )
+          const coalOffset =
+              noise.get(x / noise.coalGap, z / noise.coalGap, noise.coalSeed) *
+              noise.coalAmp
+
+          // set stones and coal
+          if (stoneOffset > noise.stoneThreshold) {
+            if (coalOffset > noise.coalThreshold) {
+              // coal
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.coal])
+              blocks[BlockType.obsidian].setMatrixAt(
+                  blocksCount[BlockType.obsidian]++,
+                  matrix
+              )
+            } else {
+              // stone
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.stone])
+              blocks[BlockType.glowstone].setMatrixAt(
+                  blocksCount[BlockType.glowstone]++,
+                  matrix
+              )
+            }
+          }
+
+          // set grass, sand and water
+          else {
+            if (yOffset < -3) {
+              // sand
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
+              blocks[BlockType.redstone_ore].setMatrixAt(
+                  blocksCount[BlockType.redstone_ore]++,
+                  matrix
+              )
+            } else {
+              // grass
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
+              blocks[BlockType.redstone_ore].setMatrixAt(
+                  blocksCount[BlockType.redstone_ore]++,
+                  matrix
+              )
+            }
           }
         }
 
-        // set grass, sand and water
-        else {
-          if (yOffset < -3) {
-            // sand
-            idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
-            blocks[BlockType.redstone_ore].setMatrixAt(
-                blocksCount[BlockType.redstone_ore]++,
-                matrix
-            )
+        // generate ceilings
+        const ceilingmean = Math.floor(
+            noise.get(x / noise.netherGap, z / noise.netherGap, noise.netherSeed) * noise.netherAmp + 10
+        )
+        const ceilingstd = 1
+        for (let yOffset = ceilingmean - ceilingstd; yOffset <= ceilingmean + ceilingstd; yOffset++) {
+          matrix.setPosition(x, y + yOffset, z)
 
-            matrix.setPosition(x, y + yOffset + 1, z)
-            // water
-            idMap.set(`${x}_${y + yOffset + 1}_${z}`, blocksCount[BlockType.water])
-            blocks[BlockType.water].setMatrixAt(
-                blocksCount[BlockType.water]++,
-                matrix
-            )
-          } else {
-            // grass
-            idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
-            blocks[BlockType.redstone_ore].setMatrixAt(
-                blocksCount[BlockType.redstone_ore]++,
-                matrix
-            )
+          const stoneOffset =
+              noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
+              noise.stoneAmp
+
+          const coalOffset =
+              noise.get(x / noise.coalGap, z / noise.coalGap, noise.coalSeed) *
+              noise.coalAmp
+
+          // set stones and coal
+          if (stoneOffset > noise.stoneThreshold) {
+            if (coalOffset > noise.coalThreshold) {
+              // coal
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.coal])
+              blocks[BlockType.obsidian].setMatrixAt(
+                  blocksCount[BlockType.obsidian]++,
+                  matrix
+              )
+            } else {
+              // stone
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.stone])
+              blocks[BlockType.glowstone].setMatrixAt(
+                  blocksCount[BlockType.glowstone]++,
+                  matrix
+              )
+            }
+          }
+
+          // set grass, sand and water
+          else {
+            if (yOffset < -3) {
+              // sand
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
+              blocks[BlockType.redstone_ore].setMatrixAt(
+                  blocksCount[BlockType.redstone_ore]++,
+                  matrix
+              )
+            } else {
+              // grass
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
+              blocks[BlockType.redstone_ore].setMatrixAt(
+                  blocksCount[BlockType.redstone_ore]++,
+                  matrix
+              )
+            }
           }
         }
 
         // generate trees
+        const yOffset = yOffsetmean
+        const stoneOffset = noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) * noise.stoneAmp
         const treeOffset =
             noise.get(x / noise.treeGap, z / noise.treeGap, noise.treeSeed) *
             noise.treeAmp
@@ -303,12 +356,12 @@ onmessage = (
             stoneOffset < noise.stoneThreshold // not on stones
         ) {
           for (let i = 1; i <= noise.treeHeight; i++) {
-            idMap.set(`${x}_${y + yOffset + i}_${z}`, blocksCount[BlockType.nether_quartz_ore])
+            idMap.set(`${x}_${y + yOffset + i}_${z}`, blocksCount[BlockType.magma])
 
             matrix.setPosition(x, y + yOffset + i, z)
 
-            blocks[BlockType.nether_quartz_ore].setMatrixAt(
-                blocksCount[BlockType.nether_quartz_ore]++,
+            blocks[BlockType.magma].setMatrixAt(
+                blocksCount[BlockType.magma]++,
                 matrix
             )
           }
@@ -331,15 +384,15 @@ onmessage = (
                 if (leafOffset > noise.leafThreshold) {
                   idMap.set(
                       `${x + i}_${y + yOffset + noise.treeHeight + j}_${z + k}`,
-                      blocksCount[BlockType.leaf]
+                      blocksCount[BlockType.magma]
                   )
                   matrix.setPosition(
                       x + i,
                       y + yOffset + noise.treeHeight + j,
                       z + k
                   )
-                  blocks[BlockType.leaf].setMatrixAt(
-                      blocksCount[BlockType.leaf]++,
+                  blocks[BlockType.magma].setMatrixAt(
+                      blocksCount[BlockType.magma]++,
                       matrix
                   )
                 }

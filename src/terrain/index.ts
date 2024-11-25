@@ -99,20 +99,6 @@ export default class Terrain {
         this.water.position.setZ(50)
         this.overworld.add(this.water)
 
-        this.current_blocks = this.overworld_blocks
-        this.current_blocksCount = this.overworld_blocksCount
-        this.current_blocksFactor = this.overworld_blocksFactor
-        this.current_world = this.overworld
-        this.worldtype = WorldType.overworld
-
-        // this.current_blocks = this.nether_blocks
-        // this.current_blocksCount = this.nether_blocksCount
-        // this.current_blocksFactor = this.nether_blocksFactor
-        // this.current_world = this.nether
-        // this.worldtype = WorldType.nether
-
-        this.scene.add(this.current_world)
-
         // generate worker callback handler (set the idMap, blocksCount, and instanceMatrix)
         this.generateWorker.onmessage = (
             msg: MessageEvent<{
@@ -148,9 +134,21 @@ export default class Terrain {
                 block.instanceMatrix.needsUpdate = true
             }
 
-            // place the water
-            // this.water.position.setX(this.chunkSize * this.chunk.x)
-            // this.water.position.setZ(this.chunkSize * this.chunk.y)
+            if (this.worldtype === WorldType.overworld) {
+                this.current_blocks = this.overworld_blocks
+                this.current_blocksCount = this.overworld_blocksCount
+                this.current_blocksFactor = this.overworld_blocksFactor
+                this.current_world = this.overworld
+            }
+
+            if (this.worldtype === WorldType.nether) {
+                this.current_blocks = this.nether_blocks
+                this.current_blocksCount = this.nether_blocksCount
+                this.current_blocksFactor = this.nether_blocksFactor
+                this.current_world = this.nether
+            }
+
+            this.scene.add(this.current_world)
         }
     }
 
@@ -170,7 +168,7 @@ export default class Terrain {
 
     // materials
     materials = new Materials()
-    materialType = Object.keys(MaterialType).map((key) => MaterialType[key])
+    materialType = Object.keys(MaterialType) //.map((key) => MaterialType[key])
 
     // world properties
     overworld_blocks: THREE.InstancedMesh[] = []
@@ -248,17 +246,18 @@ export default class Terrain {
     overworld = new THREE.Group()
     nether = new THREE.Group()
     current_world: THREE.Group
-    worldtype: WorldType
+    worldtype = WorldType.nether
 
+    yOffsetstd = 1
     cloudCount = 0
     cloudGap = 5
 
     getCount = (type: BlockType) => {
-        return this.overworld_blocksCount[type]
+        return this.current_blocksCount[type]
     }
 
     setCount = (type: BlockType) => {
-        this.overworld_blocksCount[type] = this.overworld_blocksCount[type] + 1
+        this.current_blocksCount[type] = this.current_blocksCount[type] + 1
     }
 
     // initialize instance meshes of each type, blocksCount set to 0
@@ -328,35 +327,40 @@ export default class Terrain {
         this.nether_blocksCount = new Array(this.nether_blocks.length).fill(0)
 
         // post work to generate worker
-        this.generateWorker.postMessage({
-            distance: this.distance,
-            chunk: this.chunk,
-            noiseSeed: this.noise.seed,
-            treeSeed: this.noise.treeSeed,
-            stoneSeed: this.noise.stoneSeed,
-            coalSeed: this.noise.coalSeed,
-            idMap: new Map<string, number>(),
-            blocksFactor: this.overworld_blocksFactor,
-            blocksCount: this.overworld_blocksCount,
-            customBlocks: this.customBlocks,
-            chunkSize: this.chunkSize,
-            worldType: WorldType.overworld
-        })
+        if (this.worldtype === WorldType.overworld) {
+        console.log('this.worldtype', this.worldtype)
+            this.generateWorker.postMessage({
+                distance: this.distance,
+                chunk: this.chunk,
+                noiseSeed: this.noise.seed,
+                treeSeed: this.noise.treeSeed,
+                stoneSeed: this.noise.stoneSeed,
+                coalSeed: this.noise.coalSeed,
+                idMap: new Map<string, number>(),
+                blocksFactor: this.overworld_blocksFactor,
+                blocksCount: this.overworld_blocksCount,
+                customBlocks: this.customBlocks,
+                chunkSize: this.chunkSize,
+                worldType: WorldType.overworld
+            })
+        }
 
-        // this.generateWorker.postMessage({
-        //   distance: this.distance,
-        //   chunk: this.chunk,
-        //   noiseSeed: this.noise.seed,
-        //   treeSeed: this.noise.treeSeed,
-        //   stoneSeed: this.noise.stoneSeed,
-        //   coalSeed: this.noise.coalSeed,
-        //   idMap: new Map<string, number>(),
-        //   blocksFactor: this.nether_blocksFactor,
-        //   blocksCount: this.nether_blocksCount,
-        //   customBlocks: this.customBlocks,
-        //   chunkSize: this.chunkSize,
-        //   worldtype: this.worldtype
-        // })
+        if (this.worldtype === WorldType.nether) {
+            this.generateWorker.postMessage({
+                distance: this.distance,
+                chunk: this.chunk,
+                noiseSeed: this.noise.seed,
+                treeSeed: this.noise.treeSeed,
+                stoneSeed: this.noise.stoneSeed,
+                coalSeed: this.noise.coalSeed,
+                idMap: new Map<string, number>(),
+                blocksFactor: this.nether_blocksFactor,
+                blocksCount: this.nether_blocksCount,
+                customBlocks: this.customBlocks,
+                chunkSize: this.chunkSize,
+                worldType: WorldType.nether
+            })
+        }
 
         // cloud(only for overworld)
 
@@ -433,7 +437,7 @@ export default class Terrain {
         this.buildBlock(new THREE.Vector3(x, y, z - 1), type)
         this.buildBlock(new THREE.Vector3(x, y, z + 1), type)
 
-        this.overworld_blocks[type].instanceMatrix.needsUpdate = true
+        this.current_blocks[type].instanceMatrix.needsUpdate = true
     }
 
     //build a custom block at a specific position
@@ -493,6 +497,8 @@ export default class Terrain {
         this.previousChunk.copy(this.chunk)
 
         this.highlight.update()
+
+        this.materials.update()
 
         this.water_.material.uniforms['time'].value += 1.0 / 240.0
 

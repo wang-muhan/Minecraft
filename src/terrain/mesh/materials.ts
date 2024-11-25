@@ -22,6 +22,16 @@ async function loadAllTextures() {
 await loadAllTextures();
 
 export default class Materials {
+  constructor() {
+    const texture = textures['magma']
+    texture.repeat.set(1, 1/3)
+    texture.offset.set(0, 0)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    this.materials[MaterialType.magma].map = texture
+    this.materials[MaterialType.magma].emissiveMap = texture
+  }
+
   materials = {
     grass: [
       new THREE.MeshStandardMaterial({ map: textures['grass_block_side'] }),
@@ -90,11 +100,20 @@ export default class Materials {
 
     obsidian: new THREE.MeshStandardMaterial({ map: textures['obsidian'] }),
 
-    magma: new THREE.MeshStandardMaterial({ map: textures['magma'] }),
+    magma: new THREE.MeshStandardMaterial({ map: textures['magma'],
+      emissive: new THREE.Color(0xff5500), // 设置发光颜色
+      emissiveMap: textures['magma'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 1.5, // 控制发光强度
+      }),
 
     netherreck: new THREE.MeshStandardMaterial({ map: textures['netherrack'] }),
 
-    nether_quartz_ore: new THREE.MeshStandardMaterial({ map: textures['nether_quartz_ore'] }),
+    nether_quartz_ore: new THREE.MeshStandardMaterial({
+      map: textures['nether_quartz_ore'],
+      emissive: new THREE.Color(0xff5500), // 设置发光颜色
+      emissiveMap: textures['nether_quartz_ore'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 1.5, // 控制发光强度
+    }),
   }
 
   get = (
@@ -102,4 +121,10 @@ export default class Materials {
   ): THREE.MeshStandardMaterial | THREE.MeshStandardMaterial[] => {
     return this.materials[type]
   }
+
+  update = () => {
+    this.materials[MaterialType.magma].map.offset.y += 0.005
+  }
+
+
 }
