@@ -12,7 +12,7 @@ export default class Core {
 
   camera: THREE.PerspectiveCamera
   scene: THREE.Scene
-  renderer: THREE.WebGLRenderer
+  renderer: THREE.Renderer
 
   initCamera = () => {
     this.camera.fov = 50
@@ -34,7 +34,7 @@ export default class Core {
     this.scene = new THREE.Scene()
     const backgroundColor = 0x87ceeb
 
-    // this.scene.fog = new THREE.Fog(backgroundColor, 1, 96)
+    this.scene.fog = new THREE.Fog(backgroundColor, 1, 96)
     this.scene.background = new THREE.Color(backgroundColor)
 
     const sunLight = new THREE.PointLight(0xffffff, 0.5)
