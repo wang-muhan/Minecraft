@@ -236,7 +236,7 @@ onmessage = (
         const yOffsetmean = Math.floor(
             noise.get(x / noise.gap, z / noise.gap, noise.seed) * noise.amp
         )
-        const yOffsetstd = 1
+        const yOffsetstd = 0
 
         for (let yOffset = yOffsetmean - yOffsetstd; yOffset <= yOffsetmean + yOffsetstd; yOffset++) {
           matrix.setPosition(x, y + yOffset, z)

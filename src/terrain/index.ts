@@ -83,7 +83,7 @@ export default class Terrain {
             ),
             // sunDirection: new THREE.Vector3(),
             // sunColor: 0xffffff,
-            waterColor: 0x0000ff,
+            waterColor: 0x000066,
             // distortionScale: 3.7,
             fog: false,
             side: THREE.DoubleSide,
