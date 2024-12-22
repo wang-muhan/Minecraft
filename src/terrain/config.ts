@@ -19,6 +19,9 @@ export enum BlockType {
     magma,
     netherrack,
     nether_quartz_ore,
+    soul_sand,
+    nether_bricks,
+    nether_wart_block
 }
 
 export enum WorldType {
@@ -36,7 +39,7 @@ export const MaterialType = Object.keys(BlockType)
         return acc;
     }, {} as { [key: string]: string });
 
-export const overworld_blocksFactor = [1, 0.2, 0.1, 0.7, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-export const nether_blocksFactor = [0.1, 0.2, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 3.0, 1.0, 1.0, 1.0, 1.0]
+export const overworld_blocksFactor = [1, 0.2, 0.1, 0.7, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.1, 0.1, 0.1]
+export const nether_blocksFactor = [0.1, 0.2, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0, 2.0, 0.1]
 // export const overworld_blocksFactor = Array(20).fill(1.0)
 // export const nether_blocksFactor = Array(20).fill(3.0)

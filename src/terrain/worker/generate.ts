@@ -270,11 +270,11 @@ onmessage = (
 
           // set grass, sand and water
           else {
-            if (yOffset < -2) {
+            if (yOffset < 0) {
               // sand
-              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
-              blocks[BlockType.redstone_ore].setMatrixAt(
-                  blocksCount[BlockType.redstone_ore]++,
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.soul_sand])
+              blocks[BlockType.soul_sand].setMatrixAt(
+                  blocksCount[BlockType.soul_sand]++,
                   matrix
               )
             } else {
@@ -308,14 +308,14 @@ onmessage = (
           if (stoneOffset > noise.stoneThreshold) {
             if (coalOffset > noise.coalThreshold) {
               // coal
-              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.coal])
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.obsidian])
               blocks[BlockType.obsidian].setMatrixAt(
                   blocksCount[BlockType.obsidian]++,
                   matrix
               )
             } else {
               // stone
-              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.stone])
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.glowstone])
               blocks[BlockType.glowstone].setMatrixAt(
                   blocksCount[BlockType.glowstone]++,
                   matrix
@@ -333,17 +333,17 @@ onmessage = (
                   matrix
               )
             } else {
-              // grass
-              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
-              blocks[BlockType.redstone_ore].setMatrixAt(
-                  blocksCount[BlockType.redstone_ore]++,
+              // nether_bricks
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.nether_bricks])
+              blocks[BlockType.nether_bricks].setMatrixAt(
+                  blocksCount[BlockType.nether_bricks]++,
                   matrix
               )
             }
           }
         }
 
-        // generate trees
+        // generate magma
         const yOffset = yOffsetmean
         const stoneOffset = noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) * noise.stoneAmp
         const treeOffset =

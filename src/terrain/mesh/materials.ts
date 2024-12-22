@@ -95,14 +95,18 @@ export default class Materials {
     ],
 
     glowstone: new THREE.MeshStandardMaterial({ map: textures['glowstone'],
-      emissive: new THREE.Color(0x005555), // 设置发光颜色
-      emissiveMap: textures['nether_quartz_ore'], // 使用同一个纹理作为发光纹理
-      emissiveIntensity: 2.0, // 控制发光强度
+      emissive: new THREE.Color(0xffff55), // 设置发光颜色
+      emissiveMap: textures['glowstone'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 1.0, // 控制发光强度
     }),
 
     redstone_ore: new THREE.MeshStandardMaterial({ map: textures['redstone_block'] }),
 
-    obsidian: new THREE.MeshStandardMaterial({ map: textures['obsidian'] }),
+    obsidian: new THREE.MeshStandardMaterial({ map: textures['obsidian'] ,
+      emissive: new THREE.Color(0xffffff), // 设置发光颜色
+      emissiveMap: textures['obsidian'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 1.0, // 控制发光强度
+    }),
 
     magma: new THREE.MeshStandardMaterial({ map: textures['magma'],
       emissive: new THREE.Color(0xff5500), // 设置发光颜色
@@ -110,13 +114,39 @@ export default class Materials {
       emissiveIntensity: 1.5, // 控制发光强度
       }),
 
-    netherreck: new THREE.MeshStandardMaterial({ map: textures['netherrack'] }),
+    netherrack: new THREE.MeshStandardMaterial({ map: textures['netherrack'],
+      map: textures['netherrack'],
+      emissive: new THREE.Color(0xffffff), // 设置发光颜色
+      emissiveMap: textures['netherrack'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 1.0, // 控制发光强度
+      }),
 
     nether_quartz_ore: new THREE.MeshStandardMaterial({
       map: textures['nether_quartz_ore'],
       emissive: new THREE.Color(0xff5555), // 设置发光颜色
       emissiveMap: textures['nether_quartz_ore'], // 使用同一个纹理作为发光纹理
       emissiveIntensity: 0.5, // 控制发光强度
+    }),
+
+    soul_sand: new THREE.MeshStandardMaterial({
+      map: textures['soul_sand'],
+      emissive: new THREE.Color(0x555555), // 设置发光颜色
+      emissiveMap: textures['soul_sand'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 0.5, // 控制发光强度
+    }),
+
+    nether_bricks: new THREE.MeshStandardMaterial({
+      map: textures['nether_bricks'],
+      emissive: new THREE.Color(0xffffff), // 设置发光颜色
+      emissiveMap: textures['nether_bricks'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 1.0, // 控制发光强度
+    }),
+
+    nether_wart_block: new THREE.MeshStandardMaterial({
+      map: textures['nether_wart_block'],
+      emissive: new THREE.Color(0x555555), // 设置发光颜色
+      emissiveMap: textures['nether_wart_block'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 1.0, // 控制发光强度
     }),
   }
 
