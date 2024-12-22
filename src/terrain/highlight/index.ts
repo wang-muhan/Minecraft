@@ -72,18 +72,18 @@ export default class BlockHighlight {
         this.instanceMesh.setMatrixAt(this.index++, matrix)
 
         let stoneOffset =
-          noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
-          noise.stoneAmp
+            noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
+            noise.stoneAmp
 
         let treeOffset =
-          noise.get(x / noise.treeGap, z / noise.treeGap, noise.treeSeed) *
-          noise.treeAmp
+            noise.get(x / noise.treeGap, z / noise.treeGap, noise.treeSeed) *
+            noise.treeAmp
 
         // check tree
         if (
-          treeOffset > noise.treeThreshold &&
-          y - 30 >= -3 &&
-          stoneOffset < noise.stoneThreshold
+            treeOffset > noise.treeThreshold &&
+            y - 30 >= -3 &&
+            stoneOffset < noise.stoneThreshold
         ) {
           for (let t = 1; t <= noise.treeHeight; t++) {
             idMap.set(`${x}_${y + t}_${z}`, this.index)
@@ -117,6 +117,39 @@ export default class BlockHighlight {
           //   }
           // }
         }
+
+        // // generate ceilings
+        // const ceilingmean = Math.floor(
+        //     noise.get(x / noise.netherGap, z / noise.netherGap, noise.netherSeed) * noise.netherAmp + 10
+        // )
+        // const ceilingstd = 1
+        // for (let yOffset = ceilingmean - ceilingstd; yOffset <= ceilingmean + ceilingstd; yOffset++) {
+        //   matrix.setPosition(x, 30 + yOffset, z)
+        //
+        //   const stoneOffset =
+        //       noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
+        //       noise.stoneAmp
+        //
+        //   const coalOffset =
+        //       noise.get(x / noise.coalGap, z / noise.coalGap, noise.coalSeed) *
+        //       noise.coalAmp
+        //
+        //   // set stones and coal
+        //   if (stoneOffset > noise.stoneThreshold) {
+        //     if (coalOffset > noise.coalThreshold) {
+        //       // coal
+        //       this.instanceMesh.setMatrixAt(
+        //           this.index++,
+        //           matrix
+        //       )
+        //     } else {
+        //       this.instanceMesh.setMatrixAt(
+        //           this.index++,
+        //           matrix
+        //       )
+        //     }
+        //   }
+        // }
       }
     }
 

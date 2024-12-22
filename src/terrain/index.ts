@@ -54,6 +54,9 @@ export default class Terrain {
         this.water.material.transparent = true
         this.water.material.side = THREE.DoubleSide
         this.water.position.setY(30)
+        this.water.position.setX(50)
+        this.water.position.setZ(50)
+        this.overworld.add(this.water)
 
         this.outerShape = new THREE.Shape();
         this.outerShape.moveTo(-500, -500);  // 左下角
@@ -62,7 +65,6 @@ export default class Terrain {
         this.outerShape.lineTo(500, -500);   // 右下角
         this.outerShape.lineTo(-500, -500);  // 闭合路径
 
-        // 创建要移除的区域（孔洞）
         const holePath = new THREE.Path();
         holePath.moveTo(0, 0);          // 孔的左下角
         holePath.lineTo(0, 100);        // 孔的左上角
@@ -89,15 +91,10 @@ export default class Terrain {
             side: THREE.DoubleSide,
             alpha: 0.7
         })
-
         this.water_.rotation.x = -Math.PI / 2
         this.water_.material.transparent = true
         this.water_.position.set(0, 30, 100)
         this.overworld.add(this.water_)
-
-        this.water.position.setX(50)
-        this.water.position.setZ(50)
-        this.overworld.add(this.water)
 
         // generate worker callback handler (set the idMap, blocksCount, and instanceMatrix)
         this.generateWorker.onmessage = (
@@ -213,11 +210,7 @@ export default class Terrain {
     )
 
     waterGeometry = new THREE.PlaneGeometry(100, 100);
-    // waterGeometry_ = new THREE.PlaneGeometry(1000, 1000);
-
-    // 创建外部形状（整个平面区域）
     outerShape: THREE.Shape
-    // 创建几何体
     waterGeometry_: THREE.ShapeGeometry
 
     water = new Water(this.waterGeometry, {
@@ -246,7 +239,7 @@ export default class Terrain {
     overworld = new THREE.Group()
     nether = new THREE.Group()
     current_world: THREE.Group
-    worldtype = WorldType.nether
+    worldtype = WorldType.overworld
 
     yOffsetstd = 1
     cloudCount = 0
@@ -328,7 +321,6 @@ export default class Terrain {
 
         // post work to generate worker
         if (this.worldtype === WorldType.overworld) {
-        console.log('this.worldtype', this.worldtype)
             this.generateWorker.postMessage({
                 distance: this.distance,
                 chunk: this.chunk,
@@ -477,6 +469,28 @@ export default class Terrain {
         this.overworld_blocks[type].setMatrixAt(this.getCount(type), matrix)
         this.overworld_blocks[type].instanceMatrix.needsUpdate = true
         this.setCount(type)
+    }
+
+    changeworld= () => {
+        // let current = this.current_world
+        if (this.worldtype === WorldType.overworld) {
+            this.worldtype = WorldType.nether
+            this.current_blocks = this.nether_blocks
+            this.current_blocksCount = this.nether_blocksCount
+            this.current_blocksFactor = this.nether_blocksFactor
+            this.current_world = this.nether
+        }
+
+        else if (this.worldtype === WorldType.nether) {
+            this.worldtype = WorldType.overworld
+            this.current_blocks = this.overworld_blocks
+            this.current_blocksCount = this.overworld_blocksCount
+            this.current_blocksFactor = this.overworld_blocksFactor
+            this.current_world = this.overworld
+        }
+
+        // this.scene.remove(current)
+        // this.scene.add(this.current_world)
     }
 
     // update the terrain

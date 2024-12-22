@@ -94,7 +94,11 @@ export default class Materials {
         new THREE.MeshStandardMaterial({ map: textures['tnt_side'] })
     ],
 
-    glowstone: new THREE.MeshStandardMaterial({ map: textures['glowstone'] }),
+    glowstone: new THREE.MeshStandardMaterial({ map: textures['glowstone'],
+      emissive: new THREE.Color(0x005555), // 设置发光颜色
+      emissiveMap: textures['nether_quartz_ore'], // 使用同一个纹理作为发光纹理
+      emissiveIntensity: 2.0, // 控制发光强度
+    }),
 
     redstone_ore: new THREE.MeshStandardMaterial({ map: textures['redstone_block'] }),
 
@@ -110,9 +114,9 @@ export default class Materials {
 
     nether_quartz_ore: new THREE.MeshStandardMaterial({
       map: textures['nether_quartz_ore'],
-      emissive: new THREE.Color(0xff5500), // 设置发光颜色
+      emissive: new THREE.Color(0xff5555), // 设置发光颜色
       emissiveMap: textures['nether_quartz_ore'], // 使用同一个纹理作为发光纹理
-      emissiveIntensity: 1.5, // 控制发光强度
+      emissiveIntensity: 0.5, // 控制发光强度
     }),
   }
 

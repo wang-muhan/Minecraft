@@ -32,6 +32,9 @@ export default class Noise {
   leafAmp = 5
   leafThreshold = -0.03
 
+  magmaHeight = 6
+  magmaThreshold = 4.5
+
   get = (x: number, y: number, z: number) => {
     return this.noise.noise(x, y, z)
   }

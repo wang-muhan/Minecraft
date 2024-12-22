@@ -270,7 +270,7 @@ onmessage = (
 
           // set grass, sand and water
           else {
-            if (yOffset < -3) {
+            if (yOffset < -2) {
               // sand
               idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
               blocks[BlockType.redstone_ore].setMatrixAt(
@@ -279,9 +279,9 @@ onmessage = (
               )
             } else {
               // grass
-              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.redstone_ore])
-              blocks[BlockType.redstone_ore].setMatrixAt(
-                  blocksCount[BlockType.redstone_ore]++,
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.nether_quartz_ore])
+              blocks[BlockType.nether_quartz_ore].setMatrixAt(
+                  blocksCount[BlockType.nether_quartz_ore]++,
                   matrix
               )
             }
@@ -351,11 +351,11 @@ onmessage = (
             noise.treeAmp
 
         if (
-            treeOffset > noise.treeThreshold &&
+            treeOffset > noise.magmaThreshold &&
             yOffset >= -3 && // not in water or sand
             stoneOffset < noise.stoneThreshold // not on stones
         ) {
-          for (let i = 1; i <= noise.treeHeight; i++) {
+          for (let i = 1; i <= noise.magmaHeight; i++) {
             idMap.set(`${x}_${y + yOffset + i}_${z}`, blocksCount[BlockType.magma])
 
             matrix.setPosition(x, y + yOffset + i, z)
@@ -367,9 +367,10 @@ onmessage = (
           }
 
           // leaf
-          for (let i = -3; i < 3; i++) {
-            for (let j = -3; j < 3; j++) {
-              for (let k = -3; k < 3; k++) {
+          for (let j = -3; j < 3; j++) {
+            let l = (j + 5) / 2
+            for (let i = -l; i < l; i++) {
+              for (let k = -l; k < l; k++) {
                 if (i === 0 && k === 0) {
                   continue
                 }
@@ -383,12 +384,12 @@ onmessage = (
                 // add leaf if noise is greater than threshold
                 if (leafOffset > noise.leafThreshold) {
                   idMap.set(
-                      `${x + i}_${y + yOffset + noise.treeHeight + j}_${z + k}`,
+                      `${x + i}_${y + yOffset + noise.magmaHeight + j}_${z + k}`,
                       blocksCount[BlockType.magma]
                   )
                   matrix.setPosition(
                       x + i,
-                      y + yOffset + noise.treeHeight + j,
+                      y + yOffset + noise.magmaHeight + j,
                       z + k
                   )
                   blocks[BlockType.magma].setMatrixAt(
