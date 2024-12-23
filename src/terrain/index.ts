@@ -285,6 +285,8 @@ export default class Terrain {
                 this.maxCount * this.overworld_blocksFactor[i]
             )
             block.name = BlockType[i]
+            block.castShadow = true
+            block.receiveShadow = true
             this.overworld_blocks.push(block)
             this.overworld.add(block)
         }
@@ -663,7 +665,7 @@ export default class Terrain {
                         stoneOffset < noise.stoneThreshold // not on stones
                     ) {
                     for (let i = 1; i <= noise.magmaHeight; i++) {
-                        idMap.set(`${x}_${y + yOffset + i}_${z}`, this.index)
+                        idMap.set(`${x}_${y + yOffset + i}_${z}`, index)
         
                         matrix.setPosition(x, y + yOffset + i, z)
         

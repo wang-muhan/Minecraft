@@ -3,13 +3,14 @@ import Bag from './bag'
 import Terrain, { WorldType } from '../terrain'
 import Block from '../terrain/mesh/block'
 import Control from '../control'
+import Core from '../core'
 import { Mode } from '../player'
 import Joystick from './joystick'
 import { isMobile } from '../utils'
 import * as THREE from 'three'
 
 export default class UI {
-  constructor(terrain: Terrain, control: Control) {
+  constructor(terrain: Terrain, control: Control, core: Core) {
     this.fps = new FPS()
     this.bag = new Bag()
     this.joystick = new Joystick(control)
@@ -103,10 +104,10 @@ export default class UI {
 
     // setting
     this.setting?.addEventListener('click', () => {
-      this.settings?.classList.remove('hidden')
+      this.settings?.classList.add('show')
     })
     this.settingBack?.addEventListener('click', () => {
-      this.settings?.classList.add('hidden')
+      this.settings?.classList.remove('show')
     })
 
     // render distance
@@ -125,9 +126,33 @@ export default class UI {
       }
     })
 
+    // focus
+    this.focusInput?.addEventListener('input', (e: Event) => {
+      if (this.focus && e.target instanceof HTMLInputElement) {
+        this.focus.innerHTML = `Focus: ${e.target.value}`
+        core.bokehPass.uniforms['focus'].value = parseFloat(e.target.value)
+      }
+    })
+
+    //aperature
+    this.apertureInput?.addEventListener('input', (e: Event) => {
+      if (this.aperture && e.target instanceof HTMLInputElement) {
+        this.aperture.innerHTML = `Aperture: ${e.target.value}`
+        core.bokehPass.uniforms['aperture'].value = parseFloat(e.target.value)
+      }
+    })  
+
+    //maxblur
+    this.maxblurInput?.addEventListener('input', (e: Event) => {
+      if (this.maxblur && e.target instanceof HTMLInputElement) {
+        this.maxblur.innerHTML = `Maxblur: ${e.target.value}`
+        core.bokehPass.uniforms['maxblur'].value = parseFloat(e.target.value)
+      }
+    })
+
     // music
     this.musicInput?.addEventListener('input', (e: Event) => {
-      if (this.fov && e.target instanceof HTMLInputElement) {
+      if (this.music && e.target instanceof HTMLInputElement) {
         const disabled = e.target.value === '0'
         control.audio.disabled = disabled
         this.music!.innerHTML = `Music: ${disabled ? 'Off' : 'On'}`
@@ -144,11 +169,11 @@ export default class UI {
 
         terrain.initBlocks()
         terrain.generate()
-        terrain.scene.fog = new THREE.Fog(
-          0x87ceeb,
-          1,
-          terrain.distance * 24 + 24
-        )
+        // terrain.scene.fog = new THREE.Fog(
+        //   0x87ceeb,
+        //   1,
+        //   terrain.distance * 24 + 24
+        // )
       }
     })
 
@@ -249,6 +274,15 @@ export default class UI {
 
   fov = document.querySelector('#fov')
   fovInput = document.querySelector('#fov-input')
+
+  focus = document.querySelector('#focus')
+  focusInput = document.querySelector('#focus-input')
+
+  aperture = document.querySelector('#aperture')
+  apertureInput = document.querySelector('#aperture-input')
+
+  maxblur = document.querySelector('#maxblur')
+  maxblurInput = document.querySelector('#maxblur-input')
 
   music = document.querySelector('#music')
   musicInput = document.querySelector('#music-input')

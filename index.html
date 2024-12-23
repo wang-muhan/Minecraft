@@ -86,12 +86,43 @@
         step="1"
       />
 
+      <p id="focus">Focus: 50</p>
+      <input
+        type="range"
+        id="focus-input"
+        min="0"
+        max="10"
+        value="1"
+        step="0.1"
+      />
+
+      <p id="aperture">Aperture: 0.005</p>
+      <input
+        type="range"
+        id="aperture-input"
+        min="0.000"
+        max="0.1"
+        value="0.005"
+        step="0.001"
+      />
+
+      <p id="maxblur">Max Blur: 0</p>
+      <input
+        type="range"
+        id="maxblur-input"
+        min="0.0"
+        max="0.1"
+        value="0.00"
+        step="0.001"
+      />
+
       <p id="music">Music: On</p>
       <input type="range" id="music-input" min="0" max="1" value="1" step="1" />
 
       <br />
       <br />
       <button id="setting-back" class="button">Apply</button>
+
     </div>
 
     <div class="save-modal hidden">Game Saved!</div>

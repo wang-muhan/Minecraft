@@ -53,7 +53,7 @@ export default class Light {
     sunlight: THREE.DirectionalLight
     moonlight: THREE.DirectionalLight
     init_time: number
-    day_time: number = 24 * 60
+    day_time: number = 24 * 10
     background_color = new THREE.Color()
     moon_phase: number = 0
     world_type: WorldType = WorldType.overworld

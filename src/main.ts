@@ -13,6 +13,7 @@ const core = new Core()
 const camera = core.camera
 const scene = core.scene
 const renderer = core.renderer
+const composer = core.composer
 
 const player = new Player()
 const audio = new Audio(camera)
@@ -22,7 +23,7 @@ const entity = new Entity(scene, camera, terrain, audio)
 const light = new Light(camera, scene, terrain)
 const control = new Control(scene, camera, player, terrain, audio, entity)
 
-const ui = new UI(terrain, control)
+const ui = new UI(terrain, control, core)
 
 // animation
 ;(function animate() {
@@ -34,6 +35,7 @@ const ui = new UI(terrain, control)
   light.update()
   ui.update()
 
-  renderer.render(scene, camera)
+  // renderer.render(scene, camera)
+  composer.render()
   // composer.render()
 })()
