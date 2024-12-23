@@ -541,6 +541,484 @@ export default class Terrain {
         }
     }
 
+    getNearbyBlocks = (position: THREE.Vector3) => {
+        let index = 0
+        let instanceMesh = new THREE.InstancedMesh(
+            new THREE.BoxGeometry(),
+            new THREE.MeshBasicMaterial(),
+            1000
+        )
+        instanceMesh.instanceMatrix = new THREE.InstancedBufferAttribute(
+            new Float32Array(1000 * 16),
+            16
+        )
+        const matrix = new THREE.Matrix4()
+        const idMap = new Map<string, number>()
+        const noise = this.noise
+        let xPos = Math.round(position.x)
+        let zPos = Math.round(position.z)
+
+        for (let i = -4; i < 5; i++) {
+            for (let j = -4; j < 5; j++) {
+                // check terrain
+                let x = xPos + i
+                let z = zPos + j
+                let y =
+                    Math.floor(
+                    noise.get(x / noise.gap, z / noise.gap, noise.seed) * noise.amp
+                    ) + 30
+
+                idMap.set(`${x}_${y}_${z}`, index)
+                matrix.setPosition(x, y, z)
+                instanceMesh.setMatrixAt(index++, matrix)
+
+                let stoneOffset =
+                    noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
+                    noise.stoneAmp
+
+                let treeOffset =
+                    noise.get(x / noise.treeGap, z / noise.treeGap, noise.treeSeed) *
+                    noise.treeAmp
+
+                if (this.worldtype === WorldType.overworld) {
+                    // check tree
+                    if (
+                        treeOffset > noise.treeThreshold &&
+                        y - 30 >= -3 &&
+                        stoneOffset < noise.stoneThreshold
+                    ) {
+                        for (let t = 1; t <= noise.treeHeight; t++) {
+                            idMap.set(`${x}_${y + t}_${z}`, index)
+                            matrix.setPosition(x, y + t, z)
+                            instanceMesh.setMatrixAt(index++, matrix)
+                        }
+            
+                        // leaf
+                        for (let i = -3; i < 3; i++) {
+                            for (let j = -3; j < 3; j++) {
+                                for (let k = -3; k < 3; k++) {
+                                    if (i === 0 && k === 0) {
+                                    continue
+                                }
+                                let leafOffset =
+                                    noise.get(
+                                        (x + i + j) / noise.leafGap,
+                                        (z + k) / noise.leafGap,
+                                        noise.leafSeed
+                                    ) * noise.leafAmp
+            
+                                if (leafOffset > noise.leafThreshold) {
+                                    idMap.set(
+                                        `${x + i}_${y + noise.treeHeight + j}_${z + k}`,
+                                        index
+                                    )
+                                    matrix.setPosition(x + i, y + noise.treeHeight + j, z + k)
+                                    instanceMesh.setMatrixAt(index++, matrix)
+                                }
+                            }
+                        }
+                        }
+                    }
+                } else if (this.worldtype === WorldType.nether) {
+                    y = 30
+                    // generate ceilings
+                    const ceilingmean = Math.floor(
+                        noise.get(x / noise.netherGap, z / noise.netherGap, noise.netherSeed) * noise.netherAmp + 10
+                    )
+                    const ceilingstd = 1
+                    for (let yOffset = ceilingmean - ceilingstd; yOffset <= ceilingmean - ceilingstd; yOffset++) {
+                    matrix.setPosition(x, y + yOffset, z)
+        
+                    const stoneOffset =
+                        noise.get(x / noise.stoneGap, z / noise.stoneGap, noise.stoneSeed) *
+                        noise.stoneAmp
+        
+                    const coalOffset =
+                        noise.get(x / noise.coalGap, z / noise.coalGap, noise.coalSeed) *
+                        noise.coalAmp
+        
+                    // set stones and coal
+                    if (stoneOffset > noise.stoneThreshold) {
+                        if (coalOffset > noise.coalThreshold) {
+                        // coal
+                        idMap.set(`${x}_${y + yOffset}_${z}`, index)
+                        instanceMesh.setMatrixAt(
+                            index++,
+                            matrix
+                        )
+                        } else {
+                        // stone
+                        idMap.set(`${x}_${y + yOffset}_${z}`, index)
+                        instanceMesh.setMatrixAt(
+                            index++,
+                            matrix
+                        )
+                        }
+                    }
+        
+                    // set grass, sand and water
+                    else {
+                        if (yOffset < -3) {
+                        // sand
+                        idMap.set(`${x}_${y + yOffset}_${z}`, index)
+                        instanceMesh.setMatrixAt(
+                            index++,
+                            matrix
+                        )
+                        } else {
+                        // nether_bricks
+                        idMap.set(`${x}_${y + yOffset}_${z}`, index)
+                        instanceMesh.setMatrixAt(
+                            index++,
+                            matrix
+                        )
+                        }
+                    }
+                    }
+        
+                    // generate magma
+                    const yOffset = y - 30
+                    if (
+                        treeOffset > noise.magmaThreshold &&
+                        yOffset >= -3 && // not in water or sand
+                        stoneOffset < noise.stoneThreshold // not on stones
+                    ) {
+                    for (let i = 1; i <= noise.magmaHeight; i++) {
+                        idMap.set(`${x}_${y + yOffset + i}_${z}`, this.index)
+        
+                        matrix.setPosition(x, y + yOffset + i, z)
+        
+                        instanceMesh.setMatrixAt(
+                            index++,
+                            matrix
+                        )
+                    }
+        
+                    for (let j = -3; j < 3; j++) {
+                        let l = (j + 5) / 2
+                        for (let i = -l; i < l; i++) {
+                        for (let k = -l; k < l; k++) {
+                            if (i === 0 && k === 0) {
+                            continue
+                            }
+                            const leafOffset =
+                                noise.get(
+                                    (x + i + j) / noise.leafGap,
+                                    (z + k) / noise.leafGap,
+                                    noise.leafSeed
+                                ) * noise.leafAmp
+        
+                            // add leaf if noise is greater than threshold
+                            if (leafOffset > noise.leafThreshold) {
+        
+                            idMap.set(`${x}_${y + yOffset + noise.magmaHeight + j}_${z}`, index)
+        
+                            matrix.setPosition(
+                                x + i,
+                                y + yOffset + noise.magmaHeight + j,
+                                z + k
+                            )
+                            instanceMesh.setMatrixAt(
+                                index++,
+                                matrix
+                            )
+                            }
+                        }
+                        }
+                    }
+                    }
+                }
+                }
+            }
+        
+        
+            // check custom blocks
+            for (const block of this.customBlocks) {
+                if (block.placed) {
+                matrix.setPosition(block.x, block.y, block.z)
+                instanceMesh.setMatrixAt(index++, matrix)
+                } else {
+                if (idMap.has(`${block.x}_${block.y}_${block.z}`)) {
+                    let id = idMap.get(`${block.x}_${block.y}_${block.z}`)
+                    instanceMesh.setMatrixAt(
+                        id!,
+                        new THREE.Matrix4().set(
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        )
+                    )
+                }
+                }
+            }
+        return instanceMesh
+    }
+
+    getHight = (position: THREE.Vector3) => {
+        position.y = 100
+        const instanceMesh = this.getNearbyBlocks(position)
+        const raycaster = new THREE.Raycaster()
+        raycaster.far = 100
+        raycaster.set(position, new THREE.Vector3(0, -1, 0))
+        const intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          return intersects[0].point.y
+        }
+        return 0
+    }
+
+    computeDistance = (box: THREE.Box3, sneaking: boolean) => {
+        // process collision box
+        const center = new THREE.Vector3()
+        const size = new THREE.Vector3()
+        box.getCenter(center)
+        box.getSize(size)
+        // get nearby blocks
+        const instanceMesh = this.getNearbyBlocks(center)
+        const frontLeftBottom = new THREE.Vector3( center.x + size.x / 2, center.y - size.y / 2, center.z - size.z / 2 )
+        const frontRightBottom = new THREE.Vector3( center.x + size.x / 2, center.y - size.y / 2, center.z + size.z / 2 )
+        const frontLeftTop = new THREE.Vector3( center.x + size.x / 2, center.y + size.y / 2, center.z - size.z / 2 )
+        const frontRightTop = new THREE.Vector3( center.x + size.x / 2, center.y + size.y / 2, center.z + size.z / 2 )
+        const backLeftBottom = new THREE.Vector3( center.x - size.x / 2, center.y - size.y / 2, center.z - size.z / 2 )
+        const backRightBottom = new THREE.Vector3( center.x - size.x / 2, center.y - size.y / 2, center.z + size.z / 2 )
+        const backLeftTop = new THREE.Vector3( center.x - size.x / 2, center.y + size.y / 2, center.z - size.z / 2 )
+        const backRightTop = new THREE.Vector3( center.x - size.x / 2, center.y + size.y / 2, center.z + size.z / 2 )
+        const frontDirection = new THREE.Vector3(1, 0, 0)
+        const backDirection = new THREE.Vector3(-1, 0, 0)
+        const leftDirection = new THREE.Vector3(0, 0, -1)
+        const rightDirection = new THREE.Vector3(0, 0, 1)
+        const topDirection = new THREE.Vector3(0, 1, 0)
+        const bottomDirection = new THREE.Vector3(0, -1, 0)
+        const raycaster = new THREE.Raycaster()
+        raycaster.far = 1.0
+        let frontDistance = Infinity
+        let backDistance = Infinity
+        let leftDistance = Infinity
+        let rightDistance = Infinity
+        let topDistance = Infinity
+        let bottomDistance = Infinity
+        let bottomFrontLeftDistance = Infinity
+        let bottomFrontRightDistance = Infinity
+        let bottomBackLeftDistance = Infinity
+        let bottomBackRightDistance = Infinity
+        // front 
+        raycaster.set(frontLeftBottom, frontDirection)
+        let intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          frontDistance = Math.min(frontDistance, intersects[0].distance)
+        }
+        raycaster.set(frontRightBottom, frontDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          frontDistance = Math.min(frontDistance, intersects[0].distance)
+        }
+        raycaster.set(frontLeftTop, frontDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          frontDistance = Math.min(frontDistance, intersects[0].distance)
+        }
+        raycaster.set(frontRightTop, frontDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          frontDistance = Math.min(frontDistance, intersects[0].distance)
+        }
+        // back 
+        raycaster.set(backLeftBottom, backDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          backDistance = Math.min(backDistance, intersects[0].distance)
+        }
+        raycaster.set(backRightBottom, backDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          backDistance = Math.min(backDistance, intersects[0].distance)
+        }
+        raycaster.set(backLeftTop, backDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          backDistance = Math.min(backDistance, intersects[0].distance)
+        }
+        raycaster.set(backRightTop, backDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          backDistance = Math.min(backDistance, intersects[0].distance)
+        }
+        // left 
+        raycaster.set(frontLeftBottom, leftDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          leftDistance = Math.min(leftDistance, intersects[0].distance)
+        }
+        raycaster.set(backLeftBottom, leftDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          leftDistance = Math.min(leftDistance, intersects[0].distance)
+        }
+        raycaster.set(frontLeftTop, leftDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          leftDistance = Math.min(leftDistance, intersects[0].distance)
+        }
+        raycaster.set(backLeftTop, leftDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          leftDistance = Math.min(leftDistance, intersects[0].distance)
+        }
+        // right 
+        raycaster.set(frontRightBottom, rightDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          rightDistance = Math.min(rightDistance, intersects[0].distance)
+        }
+        raycaster.set(backRightBottom, rightDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          rightDistance = Math.min(rightDistance, intersects[0].distance)
+        }
+        raycaster.set(frontRightTop, rightDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          rightDistance = Math.min(rightDistance, intersects[0].distance)
+        }
+        raycaster.set(backRightTop, rightDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          rightDistance = Math.min(rightDistance, intersects[0].distance)
+        }
+        // top 
+        raycaster.set(frontLeftTop, topDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          topDistance = Math.min(topDistance, intersects[0].distance)
+        }
+        raycaster.set(frontRightTop, topDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          topDistance = Math.min(topDistance, intersects[0].distance)
+        }
+        raycaster.set(backLeftTop, topDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          topDistance = Math.min(topDistance, intersects[0].distance)
+        }
+        raycaster.set(backRightTop, topDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          topDistance = Math.min(topDistance, intersects[0].distance)
+        }
+        // bottom 
+        raycaster.set(frontLeftBottom, bottomDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          bottomDistance = Math.min(bottomDistance, intersects[0].distance)
+          bottomFrontLeftDistance = intersects[0].distance
+        }
+        raycaster.set(frontRightBottom, bottomDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          bottomDistance = Math.min(bottomDistance, intersects[0].distance)
+          bottomFrontRightDistance = intersects[0].distance
+        }
+        raycaster.set(backLeftBottom, bottomDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          bottomDistance = Math.min(bottomDistance, intersects[0].distance)
+          bottomBackLeftDistance = intersects[0].distance
+        }
+        raycaster.set(backRightBottom, bottomDirection)
+        intersects = raycaster.intersectObject(instanceMesh)
+        if (intersects.length > 0) {
+          bottomDistance = Math.min(bottomDistance, intersects[0].distance)
+          bottomBackRightDistance = intersects[0].distance
+        }
+        if (sneaking) {
+          frontLeftBottom.y -= 0.05
+          frontRightBottom.y -= 0.05
+          backLeftBottom.y -= 0.05
+          backRightBottom.y -= 0.05
+          // front
+          if (bottomFrontLeftDistance > 0.1 && bottomFrontRightDistance > 0.1) {
+            raycaster.set(frontLeftBottom, backDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            let tolerance = size.x
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            raycaster.set(frontRightBottom, backDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            frontDistance = Math.min(frontDistance, size.x - tolerance)
+          }
+          // back
+          if (bottomBackLeftDistance > 0.1 && bottomBackRightDistance > 0.1) {
+            raycaster.set(backLeftBottom, frontDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            let tolerance = size.x
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            raycaster.set(backRightBottom, frontDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            backDistance = Math.min(backDistance, size.x - tolerance)
+          }
+          // left
+          if (bottomFrontLeftDistance > 0.1 && bottomBackLeftDistance > 0.1) {
+            raycaster.set(frontLeftBottom, rightDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            let tolerance = size.z
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            raycaster.set(backLeftBottom, rightDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            leftDistance = Math.min(leftDistance, size.z - tolerance)
+          }
+          // right
+          if (bottomFrontRightDistance > 0.1 && bottomBackRightDistance > 0.1) {
+            raycaster.set(frontRightBottom, leftDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            let tolerance = size.z
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            raycaster.set(backRightBottom, leftDirection)
+            intersects = raycaster.intersectObject(instanceMesh)
+            if (intersects.length > 0) {
+              tolerance = Math.min(tolerance, intersects[0].distance)
+            }
+            rightDistance = Math.min(rightDistance, size.z - tolerance)
+          }
+        }
+        return {
+          front: frontDistance,
+          back: backDistance,
+          left: leftDistance,
+          right: rightDistance,
+          top: topDistance,
+          bottom: bottomDistance
+        }
+    }
 
     // update the terrain
     update = () => {

@@ -129,12 +129,12 @@ onmessage = (
             )
 
             matrix.setPosition(x, y + yOffset + 1, z)
-            // water
-            idMap.set(`${x}_${y + yOffset + 1}_${z}`, blocksCount[BlockType.water])
-            blocks[BlockType.water].setMatrixAt(
-                blocksCount[BlockType.water]++,
-                matrix
-            )
+            // // water
+            // idMap.set(`${x}_${y + yOffset + 1}_${z}`, blocksCount[BlockType.water])
+            // blocks[BlockType.water].setMatrixAt(
+            //     blocksCount[BlockType.water]++,
+            //     matrix
+            // )
           } else {
             // grass
             idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.grass])
