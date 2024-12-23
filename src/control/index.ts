@@ -270,10 +270,10 @@ export default class Control {
             block.object.getMatrixAt(block.instanceId!, matrix)
             const position = new THREE.Vector3().setFromMatrixPosition(matrix)
 
-            // don't remove bedrock
+            // don't remove bedrock and magma
             if (
               (BlockType[block.object.name as any] as unknown as BlockType) ===
-              BlockType.bedrock
+              BlockType.bedrock || (BlockType[block.object.name as any] as unknown as BlockType) === BlockType.magma
             ) {
               this.terrain.generateAdjacentBlocks(position)
               return

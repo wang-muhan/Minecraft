@@ -279,9 +279,9 @@ onmessage = (
               )
             } else {
               // grass
-              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.nether_quartz_ore])
-              blocks[BlockType.nether_quartz_ore].setMatrixAt(
-                  blocksCount[BlockType.nether_quartz_ore]++,
+              idMap.set(`${x}_${y + yOffset}_${z}`, blocksCount[BlockType.netherrack])
+              blocks[BlockType.netherrack].setMatrixAt(
+                  blocksCount[BlockType.netherrack]++,
                   matrix
               )
             }

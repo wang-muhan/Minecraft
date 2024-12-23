@@ -181,56 +181,56 @@ export default class BlockHighlight {
           }
 
           // generate magma
-          const yOffset = y - 30
-          if (
-              treeOffset > noise.magmaThreshold &&
-              yOffset >= -3 && // not in water or sand
-              stoneOffset < noise.stoneThreshold // not on stones
-          ) {
-            for (let i = 1; i <= noise.magmaHeight; i++) {
-              idMap.set(`${x}_${y + yOffset + i}_${z}`, this.index)
+          // const yOffset = y - 30
+          // if (
+          //     treeOffset > noise.magmaThreshold &&
+          //     yOffset >= -3 && // not in water or sand
+          //     stoneOffset < noise.stoneThreshold // not on stones
+          // ) {
+          //   for (let i = 1; i <= noise.magmaHeight; i++) {
+          //     idMap.set(`${x}_${y + yOffset + i}_${z}`, this.index)
 
-              matrix.setPosition(x, y + yOffset + i, z)
+          //     matrix.setPosition(x, y + yOffset + i, z)
 
-              this.instanceMesh.setMatrixAt(
-                  this.index++,
-                  matrix
-              )
-            }
+          //     this.instanceMesh.setMatrixAt(
+          //         this.index++,
+          //         matrix
+          //     )
+          //   }
 
-            for (let j = -3; j < 3; j++) {
-              let l = (j + 5) / 2
-              for (let i = -l; i < l; i++) {
-                for (let k = -l; k < l; k++) {
-                  if (i === 0 && k === 0) {
-                    continue
-                  }
-                  const leafOffset =
-                      noise.get(
-                          (x + i + j) / noise.leafGap,
-                          (z + k) / noise.leafGap,
-                          noise.leafSeed
-                      ) * noise.leafAmp
+            // for (let j = -3; j < 3; j++) {
+            //   let l = (j + 5) / 2
+            //   for (let i = -l; i < l; i++) {
+            //     for (let k = -l; k < l; k++) {
+            //       if (i === 0 && k === 0) {
+            //         continue
+            //       }
+            //       const leafOffset =
+            //           noise.get(
+            //               (x + i + j) / noise.leafGap,
+            //               (z + k) / noise.leafGap,
+            //               noise.leafSeed
+            //           ) * noise.leafAmp
 
-                  // add leaf if noise is greater than threshold
-                  if (leafOffset > noise.leafThreshold) {
+            //       // add leaf if noise is greater than threshold
+            //       if (leafOffset > noise.leafThreshold) {
 
-                    idMap.set(`${x}_${y + yOffset + noise.magmaHeight + j}_${z}`, this.index)
+            //         idMap.set(`${x}_${y + yOffset + noise.magmaHeight + j}_${z}`, this.index)
 
-                    matrix.setPosition(
-                        x + i,
-                        y + yOffset + noise.magmaHeight + j,
-                        z + k
-                    )
-                    this.instanceMesh.setMatrixAt(
-                        this.index++,
-                        matrix
-                    )
-                  }
-                }
-              }
-            }
-          }
+            //         matrix.setPosition(
+            //             x + i,
+            //             y + yOffset + noise.magmaHeight + j,
+            //             z + k
+            //         )
+            //         this.instanceMesh.setMatrixAt(
+            //             this.index++,
+            //             matrix
+            //         )
+            //       }
+            //     }
+            //   }
+            // }
+          // }
         }
       }
     }

@@ -109,12 +109,12 @@ export default class Materials {
     }),
 
     magma: new THREE.MeshStandardMaterial({ map: textures['magma'],
-      emissive: new THREE.Color(0xff5500), // 设置发光颜色
+      emissive: new THREE.Color(0xffffff), // 设置发光颜色
       emissiveMap: textures['magma'], // 使用同一个纹理作为发光纹理
       emissiveIntensity: 1.5, // 控制发光强度
       }),
 
-    netherrack: new THREE.MeshStandardMaterial({ map: textures['netherrack'],
+    netherrack: new THREE.MeshStandardMaterial({ 
       map: textures['netherrack'],
       emissive: new THREE.Color(0xffffff), // 设置发光颜色
       emissiveMap: textures['netherrack'], // 使用同一个纹理作为发光纹理

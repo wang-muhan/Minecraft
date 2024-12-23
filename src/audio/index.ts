@@ -138,6 +138,18 @@ export default class Audio {
     [tree1, tree2, tree3, tree4],
     [stone1, stone2, stone3, stone4],
     [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [dirt1, dirt2, dirt3, dirt4],
+    [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [stone1, stone2, stone3, stone4],
+    [sand1, sand2, sand3, sand4],
+    [stone1, stone2, stone3, stone4],
     [stone1, stone2, stone3, stone4]
   ]
   entitySourceSet = [
