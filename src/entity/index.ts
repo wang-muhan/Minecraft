@@ -289,7 +289,7 @@ class singleEntity {
           }
           this.entity.position.add(displacement)
           if( this.entity.position.y < 0){
-                this.entity.position.y = 60
+                this.entity.position.y = 50
             }
     }
     cleanup() {

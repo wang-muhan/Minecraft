@@ -301,7 +301,7 @@ export default class Control {
                 0
               )
             )
-
+            block.object.instanceMatrix.needsUpdate = true
             // block and sound effect
             this.audio.playSound(
               BlockType[block.object.name as any] as unknown as BlockType
@@ -611,7 +611,7 @@ export default class Control {
       this.camera.position.add(displacement)
       // catching net
       if (this.camera.position.y < 0) {
-        this.camera.position.y = 60
+        this.camera.position.y = 50
       }
     }
     this.p2 = this.p1

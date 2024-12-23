@@ -28,7 +28,7 @@ export default class Core {
     this.camera.near = 0.01
     this.camera.far = 500
     this.camera.updateProjectionMatrix()
-    this.camera.position.set(8, 60, 8)
+    this.camera.position.set(8, 50, 8)
 
     this.camera.lookAt(100, 30, 100)
     

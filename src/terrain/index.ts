@@ -269,12 +269,12 @@ export default class Terrain {
 
     // initialize instance meshes of each type, blocksCount set to 0
     initBlocks = () => {
-
-        const geometry = new THREE.BoxGeometry()
+        const geometry = new THREE.BoxGeometry()    
 
         // reset all blocks in overworld
         for (const block of this.overworld_blocks) {
             this.scene.remove(block)
+            this.overworld.remove(block)
         }
         this.overworld_blocks = []
 
@@ -296,6 +296,7 @@ export default class Terrain {
         // reset all blocks in nether, change the order of materials
         for (const block of this.nether_blocks) {
             this.scene.remove(block)
+            this.nether.remove(block)
         }
         this.nether_blocks = []
 

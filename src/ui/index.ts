@@ -8,7 +8,6 @@ import Entity from '../entity'
 import { Mode } from '../player'
 import Joystick from './joystick'
 import { isMobile } from '../utils'
-import * as THREE from 'three'
 
 export default class UI {
   constructor(terrain: Terrain, control: Control, core: Core, entity: Entity) {
@@ -42,10 +41,57 @@ export default class UI {
       !isMobile && control.control.lock()
     })
 
+    this.fileInput?.addEventListener('change', (event) => {
+      const file = this.fileInput.files?.[0];
+      if (!file) return;
+    
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const saveData = JSON.parse(e.target?.result as string);
+    
+          // 初始化游戏数据
+          terrain.noise.seed = Number(saveData.seed) ?? Math.random();
+    
+          const customBlocks = (saveData.block as Block[]) ?? [];
+          terrain.customBlocks = customBlocks;
+          terrain.initBlocks();
+          terrain.generate();
+    
+          const position = saveData.position ?? null;
+          if (position) {
+            terrain.camera.position.x = position.x;
+            terrain.camera.position.y = position.y;
+            terrain.camera.position.z = position.z;
+          }
+    
+          // UI 更新
+          this.onPlay();
+          this.onLoad();
+          !isMobile && control.control.lock();
+        } catch (error) {
+          console.error('加载文件失败:', error);
+        }
+      };
+    
+      reader.readAsText(file);
+    });
+    
+
     // save load
     this.save?.addEventListener('click', () => {
       if (this.save?.innerHTML === 'Save and Exit') {
         // save game
+        const saveData = {
+          block: terrain.customBlocks,
+          seed: terrain.noise.seed,
+          position: {
+            x: terrain.camera.position.x,
+            y: terrain.camera.position.y,
+            z: terrain.camera.position.z
+          }
+        }
+        window.localStorage.setItem('gameData', JSON.stringify(saveData));
         window.localStorage.setItem(
           'block',
           JSON.stringify(terrain.customBlocks)
@@ -61,39 +107,92 @@ export default class UI {
           })
         )
 
+        const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'gameData.json';
+        link.click();
+
+        // 清理 URL 对象
+        URL.revokeObjectURL(url);
+
         // ui update
         this.onExit()
         this.onSave()
       } else {
+        this.loads?.classList.remove('hidden')
         // load game
-        terrain.noise.seed =
-          Number(window.localStorage.getItem('seed')) ?? Math.random()
+        // terrain.noise.seed =
+        //   Number(window.localStorage.getItem('seed')) ?? Math.random()
 
-        const customBlocks =
-          (JSON.parse(
-            window.localStorage.getItem('block') || 'null'
-          ) as Block[]) ?? []
+        // const customBlocks =
+        //   (JSON.parse(
+        //     window.localStorage.getItem('block') || 'null'
+        //   ) as Block[]) ?? []
 
-        terrain.customBlocks = customBlocks
-        terrain.initBlocks()
-        terrain.generate()
+        // terrain.customBlocks = customBlocks
+        // terrain.initBlocks()
+        // terrain.generate()
 
-        const position =
-          (JSON.parse(window.localStorage.getItem('position') || 'null') as {
-            x: number
-            y: number
-            z: number
-          }) ?? null
+        // const position =
+        //   (JSON.parse(window.localStorage.getItem('position') || 'null') as {
+        //     x: number
+        //     y: number
+        //     z: number
+        //   }) ?? null
 
-        position && (terrain.camera.position.x = position.x)
-        position && (terrain.camera.position.y = position.y)
-        position && (terrain.camera.position.z = position.z)
-
-        // ui update
-        this.onPlay()
-        this.onLoad()
-        !isMobile && control.control.lock()
+        // position && (terrain.camera.position.x = position.x)
+        // position && (terrain.camera.position.y = position.y)
+        // position && (terrain.camera.position.z = position.z)
+        // // this.fileInput?.click()
+        // // ui update
+        // this.onPlay()
+        // this.onLoad()
+        // !isMobile && control.control.lock()
       }
+    })
+
+    this.load1?.addEventListener('click', () => {
+      this.loads?.classList.add('hidden')
+      //  load game
+      terrain.noise.seed =
+        Number(window.localStorage.getItem('seed')) ?? Math.random()
+
+      const customBlocks =
+        (JSON.parse(
+          window.localStorage.getItem('block') || 'null'
+        ) as Block[]) ?? []
+
+      terrain.customBlocks = customBlocks
+      terrain.initBlocks()
+      terrain.generate()
+
+      const position =
+        (JSON.parse(window.localStorage.getItem('position') || 'null') as {
+          x: number
+          y: number
+          z: number
+        }) ?? null
+
+      position && (terrain.camera.position.x = position.x)
+      position && (terrain.camera.position.y = position.y)
+      position && (terrain.camera.position.z = position.z)
+      // this.fileInput?.click()
+      // ui update
+      this.onPlay()
+      this.onLoad()
+      !isMobile && control.control.lock()
+    })
+
+    this.load2?.addEventListener('click', () => {
+      this.loads?.classList.add('hidden')
+      this.fileInput?.click()
+    })
+
+    this.loadBack?.addEventListener('click', () => {
+      this.loads?.classList.add('hidden')
     })
 
     // guide
@@ -333,6 +432,7 @@ export default class UI {
 
   menu = document.querySelector('.menu')
   crossHair = document.createElement('div')
+  fileInput = document.getElementById('fileInput') as HTMLInputElement;
 
   // buttons
   play = document.querySelector('#play')
@@ -350,6 +450,7 @@ export default class UI {
   loadModal = document.querySelector('.load-modal')
   settings = document.querySelector('.settings')
   worlds = document.querySelector('.worlds')
+  loads = document.querySelector('.loads')
   entities = document.querySelector('.entities')
   features = document.querySelector('.features')
   github = document.querySelector('.github')
@@ -379,6 +480,11 @@ export default class UI {
   worldtype = document.querySelector('#worldtype')
   water = document.querySelector('#water')
   worldBack = document.querySelector('#world-back')
+
+  // loads
+  load1 = document.querySelector('#load1')
+  load2 = document.querySelector('#load2')
+  loadBack = document.querySelector('#load-back')
 
   // entities
   chicken = document.querySelector('#chicken')
