@@ -129,6 +129,7 @@ export default class Control {
 
     switch (e.key) {
       case 'q':
+      case 'Q':
         if (this.player.mode === Mode.walking) {
           this.player.setMode(Mode.flying)
         } else {
@@ -137,12 +138,6 @@ export default class Control {
         this.velocity.y = 0
         this.velocity.x = 0
         this.velocity.z = 0
-        break
-      case 'e':
-        this.terrain.changeWater()
-        break
-      case 'y':
-        this.terrain.changeWorld()
         break
       case 'w':
       case 'W':

@@ -299,6 +299,36 @@ body {
   cursor: pointer;
 }
 
+.worlds {
+  z-index: 2;
+  position: fixed;
+  left: 50%;
+  top: 20%;
+  transform: translate(-50%, 0%);
+
+  width: 300px;
+  height: 400px;
+  color: white;
+  background-color: #727272;
+  border-left: 2px solid #a4a4a4;
+  border-top: 2px solid #a4a4a4;
+  border-bottom: 2px solid #545655;
+  border-right: 2px solid #545655;
+  box-shadow: 0 0 0 2px black;
+
+  padding: 0px 30px 0px 30px;
+
+  text-align: center;
+  user-select: none;
+  text-align: left;
+  line-height: 1.8rem;
+  align-items: center;
+}
+
+.worlds > * {  /* 选择所有直接子元素 */
+  margin-top: 50px; /* 向下偏移 */
+}
+
 * {
   -webkit-touch-callout: none;
   -moz-touch-callout: none;

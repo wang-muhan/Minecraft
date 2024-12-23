@@ -1,6 +1,6 @@
 import FPS from './fps'
 import Bag from './bag'
-import Terrain from '../terrain'
+import Terrain, { WorldType } from '../terrain'
 import Block from '../terrain/mesh/block'
 import Control from '../control'
 import { Mode } from '../player'
@@ -13,6 +13,7 @@ export default class UI {
     this.fps = new FPS()
     this.bag = new Bag()
     this.joystick = new Joystick(control)
+    this.terrain = terrain
 
     this.crossHair.className = 'cross-hair'
     this.crossHair.innerHTML = '+'
@@ -151,6 +152,28 @@ export default class UI {
       }
     })
 
+    // world  
+    this.world?.addEventListener('click', () => {
+      this.worlds?.classList.remove('hidden')
+    })
+    this.worldBack?.addEventListener('click', () => {
+      this.worlds?.classList.add('hidden')
+    })
+
+    this.worldtype?.addEventListener('click', () => {
+      if (this.save?.innerHTML === 'Save and Exit'){
+        this.terrain?.changeWorld()
+        this.worldtype!.innerHTML = `World Type: ${this.terrain?.worldtype === WorldType.overworld ? 'Overworld' : 'Nether'}`
+      }
+    })
+
+    this.water?.addEventListener('click', () => {
+      if (this.save?.innerHTML === 'Save and Exit'){
+        this.terrain?.changeWater()
+        this.water!.innerHTML = `Water: ${this.terrain?.waterState ? 'On' : 'Off'}`
+      }
+    })
+
     // menu and fullscreen
     document.body.addEventListener('keydown', (e: KeyboardEvent) => {
       // menu
@@ -197,6 +220,7 @@ export default class UI {
   fps: FPS
   bag: Bag
   joystick: Joystick
+  terrain: Terrain
 
   menu = document.querySelector('.menu')
   crossHair = document.createElement('div')
@@ -205,6 +229,7 @@ export default class UI {
   play = document.querySelector('#play')
   control = document.querySelector('#control')
   setting = document.querySelector('#setting')
+  world = document.querySelector('#world')
   feature = document.querySelector('#feature')
   back = document.querySelector('#back')
   exit = document.querySelector('#exit')
@@ -214,6 +239,7 @@ export default class UI {
   saveModal = document.querySelector('.save-modal')
   loadModal = document.querySelector('.load-modal')
   settings = document.querySelector('.settings')
+  worlds = document.querySelector('.worlds')
   features = document.querySelector('.features')
   github = document.querySelector('.github')
 
@@ -228,6 +254,11 @@ export default class UI {
   musicInput = document.querySelector('#music-input')
 
   settingBack = document.querySelector('#setting-back')
+
+  // worlds
+  worldtype = document.querySelector('#worldtype')
+  water = document.querySelector('#water')
+  worldBack = document.querySelector('#world-back')
 
   onPlay = () => {
     isMobile && this.joystick.init()
