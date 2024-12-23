@@ -56,7 +56,7 @@ export default class Terrain {
         this.water.position.setY(30)
         this.water.position.setX(50)
         this.water.position.setZ(50)
-        this.overworld.add(this.water)
+        // this.overworld.add(this.water)
 
         this.outerShape = new THREE.Shape();
         this.outerShape.moveTo(-500, -500);  // 左下角
@@ -94,7 +94,7 @@ export default class Terrain {
         this.water_.rotation.x = -Math.PI / 2
         this.water_.material.transparent = true
         this.water_.position.set(0, 30, 100)
-        this.overworld.add(this.water_)
+        // this.overworld.add(this.water_)
 
         // generate worker callback handler (set the idMap, blocksCount, and instanceMatrix)
         this.generateWorker.onmessage = (
@@ -132,20 +132,22 @@ export default class Terrain {
             }
 
             if (this.worldtype === WorldType.overworld) {
-                this.current_blocks = this.overworld_blocks
-                this.current_blocksCount = this.overworld_blocksCount
-                this.current_blocksFactor = this.overworld_blocksFactor
-                this.current_world = this.overworld
+                // this.current_blocks = this.overworld_blocks
+                // this.current_blocksCount = this.overworld_blocksCount
+                // this.current_blocksFactor = this.overworld_blocksFactor
+                // this.current_world = this.overworld
+                this.scene.add(this.overworld)
             }
 
             if (this.worldtype === WorldType.nether) {
-                this.current_blocks = this.nether_blocks
-                this.current_blocksCount = this.nether_blocksCount
-                this.current_blocksFactor = this.nether_blocksFactor
-                this.current_world = this.nether
+                // this.current_blocks = this.nether_blocks
+                // this.current_blocksCount = this.nether_blocksCount
+                // this.current_blocksFactor = this.nether_blocksFactor
+                // this.current_world = this.nether
+                this.scene.add(this.nether)
             }
 
-            this.scene.add(this.current_world)
+            // this.scene.add(this.current_world)
         }
     }
 
@@ -174,9 +176,9 @@ export default class Terrain {
     nether_blocks: THREE.InstancedMesh[] = []
     nether_blocksCount: number[] = []
     nether_blocksFactor = nether_blocksFactor
-    current_blocks: THREE.InstancedMesh[] = []
-    current_blocksCount: number[] = []
-    current_blocksFactor: number[]
+    // current_blocks: THREE.InstancedMesh[] = []
+    // current_blocksCount: number[] = []
+    // current_blocksFactor: number[]
 
 
     customBlocks: Block[] = []
@@ -209,9 +211,11 @@ export default class Terrain {
         })
     )
 
+    waterState: boolean = false
+
     waterGeometry = new THREE.PlaneGeometry(100, 100);
     outerShape: THREE.Shape
-    waterGeometry_: THREE.ShapeGeometry
+    waterGeometry_: THREE.ShapeGeometry 
 
     water = new Water(this.waterGeometry, {
         textureWidth: 256,
@@ -238,7 +242,7 @@ export default class Terrain {
     //world groups
     overworld = new THREE.Group()
     nether = new THREE.Group()
-    current_world: THREE.Group
+    // current_world: THREE.Group
     worldtype = WorldType.overworld
 
     yOffsetstd = 1
@@ -246,11 +250,21 @@ export default class Terrain {
     cloudGap = 5
 
     getCount = (type: BlockType) => {
-        return this.current_blocksCount[type]
+        if (this.worldtype === WorldType.overworld) {
+            return this.overworld_blocksCount[type]
+        } else {
+            return this.nether_blocksCount[type]
+        }
+        // return this.current_blocksCount[type]
     }
 
     setCount = (type: BlockType) => {
-        this.current_blocksCount[type] = this.current_blocksCount[type] + 1
+        // this.current_blocksCount[type] = this.current_blocksCount[type] + 1
+        if (this.worldtype === WorldType.overworld) {
+            this.overworld_blocksCount[type] = this.overworld_blocksCount[type] + 1
+        } else {
+            this.nether_blocksCount[type] = this.nether_blocksCount[type] + 1
+        }
     }
 
     // initialize instance meshes of each type, blocksCount set to 0
@@ -429,7 +443,13 @@ export default class Terrain {
         this.buildBlock(new THREE.Vector3(x, y, z - 1), type)
         this.buildBlock(new THREE.Vector3(x, y, z + 1), type)
 
-        this.current_blocks[type].instanceMatrix.needsUpdate = true
+        // this.current_blocks[type].instanceMatrix.needsUpdate = true
+        if (this.worldtype === WorldType.overworld) {
+            this.overworld_blocks[type].instanceMatrix.needsUpdate = true
+        } else {
+            this.nether_blocks[type].instanceMatrix.needsUpdate = true
+        }
+
     }
 
     //build a custom block at a specific position
@@ -471,27 +491,56 @@ export default class Terrain {
         this.setCount(type)
     }
 
-    changeworld= () => {
+    changeWorld= () => {
         // let current = this.current_world
         if (this.worldtype === WorldType.overworld) {
+            this.scene.remove(this.overworld)
+            this.scene.add(this.nether)
             this.worldtype = WorldType.nether
-            this.current_blocks = this.nether_blocks
-            this.current_blocksCount = this.nether_blocksCount
-            this.current_blocksFactor = this.nether_blocksFactor
-            this.current_world = this.nether
+            // this.scene.remove(this.current_world)
+            // this.current_blocks = this.nether_blocks
+            // this.current_blocksCount = this.nether_blocksCount
+            // this.current_blocksFactor = this.nether_blocksFactor
+            // this.current_world = this.nether
+            // this.scene.add(this.current_world)
         }
 
         else if (this.worldtype === WorldType.nether) {
+            this.scene.remove(this.nether)
+            this.scene.add(this.overworld)
             this.worldtype = WorldType.overworld
-            this.current_blocks = this.overworld_blocks
-            this.current_blocksCount = this.overworld_blocksCount
-            this.current_blocksFactor = this.overworld_blocksFactor
-            this.current_world = this.overworld
+            // this.scene.remove(this.current_world)
+            // this.current_blocks = this.overworld_blocks
+            // this.current_blocksCount = this.overworld_blocksCount
+            // this.current_blocksFactor = this.overworld_blocksFactor
+            // this.current_world = this.overworld
+            // this.scene.add(this.current_world)
         }
+
+        // for (const block of this.current_blocks) {
+        //     block.instanceMatrix.needsUpdate = true
+        // }
+
+        this.generate()
+
 
         // this.scene.remove(current)
         // this.scene.add(this.current_world)
     }
+
+    changeWater = () => {
+        this.waterState = !this.waterState
+        if (this.waterState) {
+            // this.overworld.remove(this.testMesh)
+            this.overworld.add(this.water)
+            this.overworld.add(this.water_)
+        } else {
+            this.overworld.remove(this.water)
+            this.overworld.remove(this.water_)
+            // this.overworld.add(this.testMesh)
+        }
+    }
+
 
     // update the terrain
     update = () => {
