@@ -106,7 +106,7 @@ export default class Light {
                 this.scene.remove(this.moonlight)
                 this.scene.remove(this.sun)
                 this.scene.remove(this.moon)
-                this.background_color.set(netherColor)
+                this.scene.background = new THREE.Color(netherColor)
             }
         }
         if (this.world_type === WorldType.overworld) {

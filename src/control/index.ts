@@ -610,7 +610,7 @@ export default class Control {
       }
       this.camera.position.add(displacement)
       // catching net
-      if (this.camera.position.y < -100) {
+      if (this.camera.position.y < 0) {
         this.camera.position.y = 60
       }
     }

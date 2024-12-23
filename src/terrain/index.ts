@@ -497,47 +497,26 @@ export default class Terrain {
             this.scene.remove(this.overworld)
             this.scene.add(this.nether)
             this.worldtype = WorldType.nether
-            // this.scene.remove(this.current_world)
-            // this.current_blocks = this.nether_blocks
-            // this.current_blocksCount = this.nether_blocksCount
-            // this.current_blocksFactor = this.nether_blocksFactor
-            // this.current_world = this.nether
-            // this.scene.add(this.current_world)
         }
 
         else if (this.worldtype === WorldType.nether) {
             this.scene.remove(this.nether)
             this.scene.add(this.overworld)
             this.worldtype = WorldType.overworld
-            // this.scene.remove(this.current_world)
-            // this.current_blocks = this.overworld_blocks
-            // this.current_blocksCount = this.overworld_blocksCount
-            // this.current_blocksFactor = this.overworld_blocksFactor
-            // this.current_world = this.overworld
-            // this.scene.add(this.current_world)
         }
-
-        // for (const block of this.current_blocks) {
-        //     block.instanceMatrix.needsUpdate = true
-        // }
 
         this.generate()
 
-
-        // this.scene.remove(current)
-        // this.scene.add(this.current_world)
     }
 
     changeWater = () => {
         this.waterState = !this.waterState
         if (this.waterState) {
-            // this.overworld.remove(this.testMesh)
             this.overworld.add(this.water)
             this.overworld.add(this.water_)
         } else {
             this.overworld.remove(this.water)
             this.overworld.remove(this.water_)
-            // this.overworld.add(this.testMesh)
         }
     }
 
