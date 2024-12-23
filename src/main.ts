@@ -23,7 +23,7 @@ const entity = new Entity(scene, camera, terrain, audio)
 const light = new Light(camera, scene, terrain)
 const control = new Control(scene, camera, player, terrain, audio, entity)
 
-const ui = new UI(terrain, control, core)
+const ui = new UI(terrain, control, core, entity)
 
 // animation
 ;(function animate() {

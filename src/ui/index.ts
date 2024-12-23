@@ -4,17 +4,19 @@ import Terrain, { WorldType } from '../terrain'
 import Block from '../terrain/mesh/block'
 import Control from '../control'
 import Core from '../core'
+import Entity from '../entity'
 import { Mode } from '../player'
 import Joystick from './joystick'
 import { isMobile } from '../utils'
 import * as THREE from 'three'
 
 export default class UI {
-  constructor(terrain: Terrain, control: Control, core: Core) {
+  constructor(terrain: Terrain, control: Control, core: Core, entity: Entity) {
     this.fps = new FPS()
     this.bag = new Bag()
     this.joystick = new Joystick(control)
     this.terrain = terrain
+    this.entity_class = entity
 
     this.crossHair.className = 'cross-hair'
     this.crossHair.innerHTML = '+'
@@ -199,6 +201,87 @@ export default class UI {
       }
     })
 
+
+    // entities
+    this.entity?.addEventListener('click', () => {
+      this.entities?.classList.add('show')
+    })
+    this.creeper?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[0] > 0){
+        this.entity_class.maxNumEntity[0] = 0
+        this.creeper!.innerHTML = `Creeper: Off`
+      } else {
+        this.entity_class.maxNumEntity[0] = 1
+        this.creeper!.innerHTML = `Creeper: On`
+      }
+    })
+    this.skeleton?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[1] > 0){
+        this.entity_class.maxNumEntity[1] = 0
+        this.skeleton!.innerHTML = `Skeleton: Off`
+      } else {
+        this.entity_class.maxNumEntity[1] = 1
+        this.skeleton!.innerHTML = `Skeleton: On`
+      }
+    })
+    this.zombie?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[2] > 0){
+        this.entity_class.maxNumEntity[2] = 0
+        this.zombie!.innerHTML = `Zombie: Off`
+      } else {
+        this.entity_class.maxNumEntity[2] = 1
+        this.zombie!.innerHTML = `Zombie: On`
+      }
+    })
+    this.spider?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[3] > 0){
+        this.entity_class.maxNumEntity[3] = 0
+        this.spider!.innerHTML = `Spider: Off`
+      } else {
+        this.entity_class.maxNumEntity[3] = 1
+        this.spider!.innerHTML = `Spider: On`
+      }
+    })
+    this.pig?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[4] > 0){
+        this.entity_class.maxNumEntity[4] = 0
+        this.pig!.innerHTML = `Pig: Off`
+      } else {
+        this.entity_class.maxNumEntity[4] = 1
+        this.pig!.innerHTML = `Pig: On`
+      }
+    })
+    this.cow?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[5] > 0){
+        this.entity_class.maxNumEntity[5] = 0
+        this.cow!.innerHTML = `Cow: Off`
+      } else {
+        this.entity_class.maxNumEntity[5] = 1
+        this.cow!.innerHTML = `Cow: On`
+      }
+    })
+    this.sheep?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[6] > 0){
+        this.entity_class.maxNumEntity[6] = 0
+        this.sheep!.innerHTML = `Sheep: Off`
+      } else {
+        this.entity_class.maxNumEntity[6] = 1
+        this.sheep!.innerHTML = `Sheep: On`
+      }
+    })
+    this.chicken?.addEventListener('click', () => {
+      if (this.entity_class.maxNumEntity[7] > 0){
+        this.entity_class.maxNumEntity[7] = 0
+        this.chicken!.innerHTML = `Chicken: Off`
+      } else {
+        this.entity_class.maxNumEntity[7] = 1
+        this.chicken!.innerHTML = `Chicken: On`
+      }
+    })
+    this.entityBack?.addEventListener('click', () => {
+      this.entities?.classList.remove('show')
+    })
+
     // menu and fullscreen
     document.body.addEventListener('keydown', (e: KeyboardEvent) => {
       // menu
@@ -246,6 +329,7 @@ export default class UI {
   bag: Bag
   joystick: Joystick
   terrain: Terrain
+  entity_class: Entity
 
   menu = document.querySelector('.menu')
   crossHair = document.createElement('div')
@@ -255,6 +339,7 @@ export default class UI {
   control = document.querySelector('#control')
   setting = document.querySelector('#setting')
   world = document.querySelector('#world')
+  entity = document.querySelector('#entity')
   feature = document.querySelector('#feature')
   back = document.querySelector('#back')
   exit = document.querySelector('#exit')
@@ -265,6 +350,7 @@ export default class UI {
   loadModal = document.querySelector('.load-modal')
   settings = document.querySelector('.settings')
   worlds = document.querySelector('.worlds')
+  entities = document.querySelector('.entities')
   features = document.querySelector('.features')
   github = document.querySelector('.github')
 
@@ -293,6 +379,17 @@ export default class UI {
   worldtype = document.querySelector('#worldtype')
   water = document.querySelector('#water')
   worldBack = document.querySelector('#world-back')
+
+  // entities
+  chicken = document.querySelector('#chicken')
+  cow = document.querySelector('#cow')
+  pig = document.querySelector('#pig')
+  sheep = document.querySelector('#sheep')
+  creeper = document.querySelector('#creeper') 
+  zombie = document.querySelector('#zombie')
+  skeleton = document.querySelector('#skeleton')
+  spider = document.querySelector('#spider')
+  entityBack = document.querySelector('#entity-back')
 
   onPlay = () => {
     isMobile && this.joystick.init()

@@ -72,6 +72,34 @@ body {
   box-shadow: 0 0 0 2px white;
 }
 
+.short-button {
+  width: 160px;
+  margin-bottom: 15px;
+  padding: 10px;
+  display: inline-block;
+
+  font-family: Minecraft, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 1.2rem;
+  color: white;
+  background-color: #727272;
+  cursor: pointer;
+
+  border-left: 2px solid #a4a4a4;
+  border-top: 2px solid #a4a4a4;
+  border-bottom: 2px solid #545655;
+  border-right: 2px solid #545655;
+  box-shadow: 0 0 0 2px black;
+}
+
+.short-button:hover {
+  background-color: #218306;
+  border-left: 2px solid #17cd07;
+  border-top: 2px solid #17cd07;
+  border-bottom: 2px solid #004e00;
+  border-right: 2px solid #004e00;
+  box-shadow: 0 0 0 2px white;
+}
+
 .footer {
   position: fixed;
   color: white;
@@ -330,7 +358,7 @@ body {
   transform: translate(-50%, 0%);
 
   width: 300px;
-  height: 380px;
+  height: 400px;
   color: white;
   background-color: #727272;
   border-left: 2px solid #a4a4a4;
@@ -350,6 +378,47 @@ body {
 
 .worlds > * {  /* 选择所有直接子元素 */
   margin-top: 50px; /* 向下偏移 */
+}
+
+.entities {
+  z-index: 2;
+  position: fixed;
+  left: 50%;
+  top: 20%;
+  transform: translate(-50%, 0%);
+
+  width: 460px;
+  height: 420px;
+  color: white;
+  background-color: #727272;
+  border-left: 2px solid #a4a4a4;
+  border-top: 2px solid #a4a4a4;
+  border-bottom: 2px solid #545655;
+  border-right: 2px solid #545655;
+  box-shadow: 0 0 0 2px black;
+
+  padding: 0px 0px 25px 50px;
+
+  display: none;
+  grid-template-rows: 1fr auto; /* 上方按钮容器和底部大按钮 */
+  grid-template-columns: 1fr 1fr; /* 左右两列 */
+  justify-content: space-between;
+  text-align: center;
+  user-select: none;
+  line-height: 1.8rem;
+  align-items: center;
+}
+
+.entities.show {
+  display: grid;
+}
+
+.friendly, .hostile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 50%; /* 左右各占50%的宽度 */
+  height: 80%; /*高度占80% */
 }
 
 * {

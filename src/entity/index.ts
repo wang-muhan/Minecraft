@@ -15,7 +15,7 @@ import { createSheep, sheepOffset, sheepSize } from './sheep/model'
 import { createSheepAnimation } from './sheep/animation'
 import { createChicken, chickenOffset, chickenSize } from './chicken/model'
 import { createChickenAnimation } from './chicken/animation'
-import Terrain from '../terrain'
+import Terrain, { WorldType } from '../terrain'
 import Audio from '../audio'
 import { Mode } from '../player'
 export enum EntityType {
@@ -28,8 +28,6 @@ export enum EntityType {
     Sheep = 6,
     Chicken = 7
 }
-
-const maxNumEntity = [0, 0, 0, 0, 0, 0, 0, 0]
 
 function createEntity(type: EntityType): THREE.Group {
     switch (type) {
@@ -114,9 +112,6 @@ function createEntityAnimation(type: EntityType, entity: THREE.Group, camera: TH
             return createChickenAnimation(entity, camera)
     }
 }
-
-
-
 
 class singleEntity {
     constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera, terrain: Terrain, parent: Entity, type: EntityType, position: THREE.Vector3, speed: number) {
@@ -332,6 +327,7 @@ export default class Entity {
     playDistance: number = 24
     entityCount: [number, number, number, number, number, number, number, number] = [0, 0, 0, 0, 0, 0, 0, 0]
     nextPlaytime = [0, 0, 0, 0, 0, 0, 0, 0]
+    maxNumEntity = [0, 0, 0, 0, 0, 0, 0, 0]
 
 
     collisionHandler(collisionBox: THREE.Box3): THREE.Vector3 {
@@ -347,20 +343,20 @@ export default class Entity {
     }
 
     update() {
-        // // remove entities
-        // let entitiesToRemove: singleEntity[] = []
-        // for (let entity of this.entities) {
-        //     const distance = entity.position().distanceTo(this.camera.position)
-        //     if (distance > this.maxDistance) {
-        //         entitiesToRemove.push(entity)
-        //         this.entityCount[entity.type]--
-        //         entity.cleanup()
-        //     }
-        // }
-        // this.entities = this.entities.filter(entity => !entitiesToRemove.includes(entity))
+        // remove entities
+        let entitiesToRemove: singleEntity[] = []
+        for (let entity of this.entities) {
+            const distance = entity.position().distanceTo(this.camera.position)
+            if (distance > this.maxDistance || this.entityCount[entity.type] > this.maxNumEntity[entity.type] || this.terrain.worldtype === WorldType.nether) {
+                entitiesToRemove.push(entity)
+                this.entityCount[entity.type]--
+                entity.cleanup()
+            }
+        }
+        this.entities = this.entities.filter(entity => !entitiesToRemove.includes(entity))
         // add entities
         for (let i = 0; i < this.entityCount.length; i++) {
-            while (this.entityCount[i] < maxNumEntity[i]) {
+            while (this.entityCount[i] < this.maxNumEntity[i]) {
                 const position = new THREE.Vector3(
                     Math.random() * 100 - 50,
                     0,
