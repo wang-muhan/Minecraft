@@ -32,25 +32,6 @@ export default class Core {
 
   initScene = () => {
     this.scene = new THREE.Scene()
-    // const backgroundColor = 0x87ceeb
-    // this.scene.fog = new THREE.Fog(backgroundColor, 1, 96)
-    // this.scene.background = new THREE.Color(backgroundColor)
-    //
-    // const sunLight = new THREE.PointLight(0xffffff, 0.5)
-    // sunLight.position.set(500, 500, 500)
-    // this.scene.add(sunLight)
-    //
-    // const sunLight2 = new THREE.PointLight(0xffffff, 0.2)
-    // sunLight2.position.set(-500, 500, -500)
-    // this.scene.add(sunLight2)
-    //
-    // const reflectionLight = new THREE.AmbientLight(0x404040)
-    // this.scene.add(reflectionLight)
-    const backgroundColor = 0x101010
-    this.scene.background = new THREE.Color(backgroundColor)
-    this.scene.fog = new THREE.Fog(backgroundColor, 1, 96)
-    const reflectionLight = new THREE.AmbientLight(0x404040)
-    this.scene.add(reflectionLight)
   }
 
   initRenderer = () => {

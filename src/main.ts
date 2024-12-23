@@ -2,6 +2,7 @@ import Core from './core'
 import Control from './control'
 import Player from './player'
 import Terrain from './terrain'
+import Light from './light'
 import UI from './ui'
 import Audio from './audio'
 
@@ -16,6 +17,7 @@ const player = new Player()
 const audio = new Audio(camera)
 
 const terrain = new Terrain(scene, camera, renderer)
+const light = new Light(camera, scene, terrain)
 const control = new Control(scene, camera, player, terrain, audio)
 
 const ui = new UI(terrain, control)
@@ -26,6 +28,7 @@ const ui = new UI(terrain, control)
 
   control.update()
   terrain.update()
+  light.update()
   ui.update()
 
   renderer.render(scene, camera)
