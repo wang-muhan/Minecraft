@@ -68,7 +68,7 @@ export default class Control {
   raycaster: THREE.Raycaster
   far: number
 
-  holdingBlock = BlockType.tnt
+  holdingBlock = BlockType.grass
   holdingBlocks = [
     BlockType.grass,
     BlockType.stone,
@@ -77,9 +77,9 @@ export default class Control {
     BlockType.diamond,
     BlockType.quartz,
     BlockType.glass,
-    BlockType.grass,
-    BlockType.grass,
-    BlockType.grass
+    BlockType.sand,
+    BlockType.redstone_ore,
+    BlockType.tnt
   ]
   holdingIndex = 0
   wheelGap = false

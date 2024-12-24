@@ -362,7 +362,7 @@ export default class Entity {
                     0,
                     Math.random() * 100 - 50
                 ).add(this.camera.position)
-                position.setY(this.terrain.getHight(position) + 2)
+                position.setY(this.terrain.getHeight(position) + 2)
                 
                 const distance = position.distanceTo(this.camera.position)
                 if (distance > this.minDistance && distance < this.maxDistance) {

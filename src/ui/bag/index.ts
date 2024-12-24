@@ -5,6 +5,9 @@ import wood from '../../static/block-icon/wood.png'
 import diamond from '../../static/block-icon/diamond.png'
 import quartz from '../../static/block-icon/quartz.png'
 import glass from '../../static/block-icon/glass.png'
+import sand from '../../static/block-icon/sand.png'
+import redstone_ore from '../../static/block-icon/redstone_ore.png'
+import tnt from '../../static/block-icon/tnt.png'
 import { isMobile } from '../../utils'
 
 export default class Bag {
@@ -54,7 +57,7 @@ export default class Bag {
   }
   wheelGap = false
   current = 0
-  icon = [grass, stone, tree, wood, diamond, quartz, glass]
+  icon = [grass, stone, tree, wood, diamond, quartz, glass, sand, redstone_ore, tnt]
   iconIndex = 0
   y = 0
 

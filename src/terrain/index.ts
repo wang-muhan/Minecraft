@@ -749,7 +749,7 @@ export default class Terrain {
         return instanceMesh
     }
 
-    getHight = (position: THREE.Vector3) => {
+    getHeight = (position: THREE.Vector3) => {
         position.y = 100
         const instanceMesh = this.getNearbyBlocks(position)
         const raycaster = new THREE.Raycaster()

@@ -5,7 +5,7 @@
   "author": "Yulei Zhu",
   "description": "Minecraft clone made with Three.js and TypeScript",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --port 8080",
     "lint": "tsc --noEmit"
